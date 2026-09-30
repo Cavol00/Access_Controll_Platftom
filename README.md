@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | **Cliente** | Aurea Precision Components S.p.A. |
-| **Team** | *(nome team — da definire)* |
+| **Team** | *LeCucciole* |
 | **Membri** | Dario D'Alessandro<br>Nicolò Florean<br>Gianmarco Tonelli |
 | **Data** | 30/09/2026 |
 | **Versione** | v0.1 |
