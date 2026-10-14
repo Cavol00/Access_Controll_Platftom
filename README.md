@@ -16,6 +16,28 @@ di accesso di un badge a un varco, concede o nega l'ingresso in base ai
 permessi configurati e conserva lo storico di tutti i tentativi per analisi e
 audit. Dettagli in [`docs/requirements.md`](./docs/requirements.md).
 
+## Il problema 
+
+Aurea Precision Components S.p.A., azienda di produzione meccanica di precisione, gestisce oggi i permessi di accesso alle sue aree
+(uffici, reparti produttivi, laboratori, magazzino, sala sistemi) in modo frammentato. Alcune di queste aree devono essere accessibili 
+solo a personale autorizzato. Senza un sistema centrale non si può garantire che entri solo chi ne ha diritto, né ricostruire dopo chi 
+ha tentato di accedere, dove e quando.
+
+L’azienda chiede una piattaforma centralizzata che:
+
+gestisca utenti, badge, edifici, aree, varchi e autorizzazioni;
+valuti ogni richiesta di accesso (badge, varco, timestamp) e risponda ACCESS_GRANTED o ACCESS_DENIED secondo regole configurate;
+registri ogni tentativo con esito e motivazione, e permetta agli amministratori di consultare lo storico e vedere i tentativi negati.
+
+Vincoli principali
+
+Nella prima fase non ci sono lettori badge reali: un simulatore software invia le richieste come se arrivassero dai varchi.
+I badge devono essere dati di test.
+La dimostrazione deve includere utenti con permessi diversi e più aree.
+La decisione di concedere o negare l’accesso deve restare completamente deterministica, basata sulle regole configurate. L’AI può solo
+supportare gli operatori, ad esempio sintetizzando pattern anomali.
+L’architettura deve restare modulare e pronta a più sedi, più varchi e futuri dispositivi reali.
+
 ## Stack
 
 ```
