@@ -1,5 +1,6 @@
 import express from "express";
 import { db } from "./db.js";
+import { config } from "./config";
 
 const app = express();
 app.use(express.json());
@@ -40,5 +41,4 @@ app.put("/api/segnalazioni/:id", (req, res) => {
 });
 
 app.get("/health", (_req, res) => res.json({ status: "ok" }));
-
-app.listen(3000, () => console.log("Server avviato su http://localhost:3000"));
+app.listen(config.port, () => console.log(`Server avviato su http://localhost:${config.port}`));
