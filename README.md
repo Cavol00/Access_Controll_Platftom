@@ -50,11 +50,6 @@ npm run dev              # avvia l'API e la console web
     └── domande-cliente.md   domande al cliente e risposte (lezione 1)
 ```
 
-## Stato del progetto
-
-Lezione 2: repository creato, branch strategy concordata, documenti della
-lezione 1 caricati in `docs/`. Da fare: trasferire il backlog in issue.
-
 ## Come contribuire
 
 Branch strategy, convenzioni di commit e Definition of Done sono in
