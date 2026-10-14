@@ -1,0 +1,118 @@
+# openapi.yaml — contratto dell'API
+#
+# Progetto: [nome progetto/cliente]      Team: [nome/numero team]
+# Data:     [data di questa versione]    Versione: v0.1 — solo gli endpoint del laboratorio di oggi
+#
+# Compilate solo i 3-4 endpoint principali di oggi, non tutta l'API.
+# Ogni "..." qui sotto è un punto da sostituire. L'esempio commentato usa
+# Smart Maintenance (NordFacility): adattatelo al vostro cliente.
+# Questo file descrive un contratto HTTP: è indipendente dal linguaggio e dal
+# framework con cui implementate l'API.
+
+openapi: 3.0.3
+
+info:
+  title: "..."          # es. "Smart Maintenance API"
+  version: "0.1.0"       # bump quando cambia il contratto, non solo il codice
+  description: "..."     # una riga: a cosa serve questa API, per chi
+
+servers:
+  - url: "..."           # es. http://localhost:8080 — dove gira davvero, non un placeholder finto
+
+paths:
+
+  # --- Un blocco per ogni risorsa. Sostituite "/risorsa" con il nome reale,
+  #     sempre sostantivo plurale (mai un verbo nel path: quello lo dice il metodo).
+
+  /risorsa:
+    get:
+      summary: "..."      # es. "Elenco interventi, filtrabile e paginato"
+      parameters:
+        - name: page
+          in: query
+          schema: { type: integer, default: 1 }
+        - name: pageSize
+          in: query
+          schema: { type: integer, default: 20 }
+        # aggiungete qui i filtri reali del vostro caso d'uso (stato, edificio, ...)
+      responses:
+        "200":
+          description: "Elenco paginato"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  dati: { type: array, items: { type: object } }
+                  pagina: { type: integer }
+                  totalePagine: { type: integer }
+                  totaleElementi: { type: integer }
+          # esempio (Smart Maintenance):
+          # { "dati": [{ "id": 42, "stato": "aperto" }], "pagina": 1, "totalePagine": 14, "totaleElementi": 271 }
+        # NON restituite mai 200 con un errore nascosto nel corpo: usate lo status corretto.
+
+    post:
+      summary: "..."      # es. "Crea un nuovo intervento"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: ["..."]   # es. ["edificio", "categoria"]
+              properties:
+                edificio: { type: string }   # sostituite con i campi reali
+      responses:
+        "201":
+          description: "Risorsa creata"
+        "400":
+          description: "Dati non validi (es. campo obbligatorio mancante)"
+          # esempio: { "errore": "campo edificio obbligatorio" }
+
+  /risorsa/{id}:
+    get:
+      summary: "..."      # es. "Dettaglio di un intervento"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: "Risorsa trovata"
+        "404":
+          description: "Nessuna risorsa con questo id"
+          # esempio: { "errore": "intervento non trovato" }
+
+    patch:
+      summary: "..."      # es. "Aggiorna lo stato di un intervento"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                stato: { type: string }
+      responses:
+        "200":
+          description: "Aggiornata"
+        "404":
+          description: "Nessuna risorsa con questo id"
+        "409":
+          description: "Transizione di stato non permessa (es. già chiusa/risolta)"
+
+  # --- Aggiungete qui gli altri endpoint del laboratorio (max 3-4 in totale).
+  #     Per ognuno: tutte le risposte possibili, non solo quella di successo.
+
+# Checklist prima di consegnare questo file:
+# [ ] ogni path è un sostantivo plurale, nessun verbo nell'URL
+# [ ] ogni endpoint di lista ha paginazione (page/pageSize o equivalente)
+# [ ] ogni endpoint documenta almeno una risposta di errore (400/404/409...)
+# [ ] i valori di "servers" e degli esempi sono reali, non placeholder
+# [ ] questo file è aggiornato allo stesso commit del codice che implementa gli endpoint
