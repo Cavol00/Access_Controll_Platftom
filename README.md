@@ -38,39 +38,27 @@ La decisione di concedere o negare l’accesso deve restare completamente determ
 supportare gli operatori, ad esempio sintetizzando pattern anomali.
 L’architettura deve restare modulare e pronta a più sedi, più varchi e futuri dispositivi reali.
 
-## Stack
+Stack
+Stack:    Node.js 22.9+ con TypeScript
+Frontend: non ancora presente
+Database: SQLite (modulo node:sqlite integrato in Node, nessun server da installare)
 
-```
-Stack:    Node.js + TypeScript + Express
-Frontend: HTML/CSS/JavaScript senza framework, servito dal backend
-Database: SQLite (modulo nativo node:sqlite)
-```
 
-## Come si esegue
-
-Non ancora eseguibile da questo repository: il codice applicativo non è
-ancora stato caricato. Una volta presente:
-
-```
+Come si esegue
 npm install
-cp .env.example .env     # poi valorizzare JWT_SECRET e SIMULATOR_API_KEY
-npm run seed             # dati di test
-npm run dev              # avvia l'API e la console web
-```
+npm start          # avvia il backend
+npm test           # esegue i test
+npm run typecheck  # controllo dei tipi
 
-## Struttura del repository
 
-```
+Struttura del repository
 .
-├── README.md                questo file
-├── CONTRIBUTING.md          come contribuire: branch, commit, Definition of Done
-└── docs/
-    ├── requirements.md      requisiti (lezione 1)
-    ├── use-cases.md         casi d'uso (lezione 1)
-    ├── architecture-v1.md   architettura (lezione 1)
-    ├── backlog.md           backlog iniziale (lezione 1)
-    └── domande-cliente.md   domande al cliente e risposte (lezione 1)
-```
+├── README.md          questo file
+├── CONTRIBUTING.md    branch, commit, Definition of Done
+├── package.json       dipendenze e comandi
+├── src/               codice del backend
+└── docs/              documentazione (requisiti, casi d'uso, architettura, uso dell'AI)
+
 
 ## Backlog
 
