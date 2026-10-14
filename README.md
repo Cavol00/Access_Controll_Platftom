@@ -26,15 +26,13 @@ Database: SQLite (modulo nativo node:sqlite)
 
 ## Come si esegue
 
-Non ancora eseguibile da questo repository: il codice applicativo non è
-ancora stato caricato. Una volta presente:
-
 ```
 npm install
-cp .env.example .env     # poi valorizzare JWT_SECRET e SIMULATOR_API_KEY
-npm run seed             # dati di test
-npm run dev              # avvia l'API e la console web
+npm run dev              # avvia l'API su http://localhost:3000
 ```
+
+Il database SQLite viene creato in `data/access-control.sqlite` al primo
+avvio, applicando lo schema in `schema.sql`.
 
 ## Struttura del repository
 
@@ -42,18 +40,31 @@ npm run dev              # avvia l'API e la console web
 .
 ├── README.md                questo file
 ├── CONTRIBUTING.md          come contribuire: branch, commit, Definition of Done
+├── schema.sql               schema del database (tabelle e vincoli)
+├── src/
+│   ├── server.ts            entrypoint: monta i router e avvia il server
+│   ├── db.ts                apertura SQLite e applicazione dello schema
+│   ├── types.ts             modelli (DTO) condivisi
+│   ├── errors.ts            errori applicativi (validazione, non trovato)
+│   ├── controllers/         adapter HTTP verso i servizi
+│   ├── services/            regole del cliente e validazione
+│   └── repositories/        accesso ai dati (unico punto con l'SQL)
 └── docs/
     ├── requirements.md      requisiti (lezione 1)
     ├── use-cases.md         casi d'uso (lezione 1)
     ├── architecture-v1.md   architettura (lezione 1)
     ├── backlog.md           backlog iniziale (lezione 1)
-    └── domande-cliente.md   domande al cliente e risposte (lezione 1)
+    ├── domande-cliente.md   domande al cliente e risposte (lezione 1)
+    └── data-model.md        modello dati: entità, relazioni, schema (lezione 3)
 ```
 
 ## Stato del progetto
 
-Lezione 2: repository creato, branch strategy concordata, documenti della
-lezione 1 caricati in `docs/`. Da fare: trasferire il backlog in issue.
+Lezione 3: schema dati in `schema.sql`, backend collegato a SQLite e
+riorganizzato a livelli (controller → servizio → repository), con un flusso
+CRUD delle segnalazioni che persiste ai riavvii. Il modello è documentato in
+[`docs/data-model.md`](./docs/data-model.md). Da fare: trasferire il backlog
+in issue.
 
 ## Come contribuire
 
