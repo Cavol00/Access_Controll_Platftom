@@ -112,3 +112,27 @@ esterni o turni straordinari.
 - un'autorizzazione può avere una data/ora di inizio e fine opzionali
 - fuori dalla fascia configurata l'accesso viene negato anche se l'autorizzazione esiste
 - *voce a rischio: può restare fuori dal primo rilascio se il tempo non basta*
+
+---
+
+## Lezione 4 — da fare (contratto API e test)
+
+Obiettivo della lezione: rendere il contratto tra frontend e backend
+**scritto, leggibile e verificabile** (OpenAPI e primi test delle API).
+Riferimento: [`../lezione-4-http-rest-api-test.md`](../lezione-4-http-rest-api-test.md).
+
+Stato attuale: il backend espone `GET/POST/PUT /api/segnalazioni` e
+`GET /health`. Le voci sotto **non sono ancora state fatte**.
+
+- [ ] **Contratto scritto** dei 3-4 endpoint principali in `docs/api.md`
+      oppure `docs/openapi.yaml` (oggi sono solo template vuoti): parametri o
+      corpo della richiesta e *tutte* le risposte, errori compresi.
+- [ ] **Test automatici** in `tests/`, eseguiti contro l'API reale: per ogni
+      endpoint happy path + almeno un caso di errore (`400` input non valido,
+      `404` risorsa inesistente, `500` errore lato server).
+- [ ] **Frontend collegato** ad almeno un endpoint reale (niente mock).
+- [ ] **Paginazione** (`page`/`pageSize`) sugli endpoint di lista.
+- [ ] Endpoint REST ancora mancanti rispetto a `use-cases.md` (es. il
+      dettaglio e l'eliminazione dell'endpoint `segnalazioni`).
+- [ ] Contratto aggiornato **nello stesso commit** del codice che lo
+      implementa.

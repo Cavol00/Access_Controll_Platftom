@@ -1,7 +1,10 @@
 # openapi.yaml — contratto dell'API
 #
-# Progetto: [nome progetto/cliente]      Team: [nome/numero team]
-# Data:     [data di questa versione]    Versione: v0.1 — solo gli endpoint del laboratorio di oggi
+# STATO: template non ancora compilato. Gli endpoint qui sotto NON sono
+# documentati. Cosa manca: vedi "Da fare — lezione 4" nel README.md.
+#
+# Progetto: Access Control Platform       Team: LeCucciole
+# Data:     14/10/2026                     Versione: v0.1 — da compilare
 #
 # Compilate solo i 3-4 endpoint principali di oggi, non tutta l'API.
 # Ogni "..." qui sotto è un punto da sostituire. L'esempio commentato usa

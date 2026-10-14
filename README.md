@@ -41,6 +41,8 @@ avvio, applicando lo schema in `schema.sql`.
 ├── README.md                questo file
 ├── CONTRIBUTING.md          come contribuire: branch, commit, Definition of Done
 ├── schema.sql               schema del database (tabelle e vincoli)
+├── dati_db_test.sql         dati di test da caricare nel database
+├── lezione-4-http-rest-api-test.md  materiale della lezione 4
 ├── src/
 │   ├── server.ts            entrypoint: monta i router e avvia il server
 │   ├── db.ts                apertura SQLite e applicazione dello schema
@@ -55,16 +57,38 @@ avvio, applicando lo schema in `schema.sql`.
     ├── architecture-v1.md   architettura (lezione 1)
     ├── backlog.md           backlog iniziale (lezione 1)
     ├── domande-cliente.md   domande al cliente e risposte (lezione 1)
-    └── data-model.md        modello dati: entità, relazioni, schema (lezione 3)
+    ├── data-model.md        modello dati: entità, relazioni, schema (lezione 3)
+    ├── api.md               contratto API — template, DA COMPILARE (lezione 4)
+    └── openapi.yaml         contratto OpenAPI — template, DA COMPILARE (lezione 4)
 ```
 
 ## Stato del progetto
 
-Lezione 3: schema dati in `schema.sql`, backend collegato a SQLite e
-riorganizzato a livelli (controller → servizio → repository), con un flusso
-CRUD delle segnalazioni che persiste ai riavvii. Il modello è documentato in
-[`docs/data-model.md`](./docs/data-model.md). Da fare: trasferire il backlog
-in issue.
+**Fatto — fino alla lezione 3**
+
+- Schema dati completo in `schema.sql` (dipendenti, badge, edifici, aree,
+  varchi, autorizzazioni, segnalazioni) e documentato in
+  [`docs/data-model.md`](./docs/data-model.md).
+- Backend collegato a SQLite e riorganizzato a livelli (controller → servizio
+  → repository), con un CRUD delle segnalazioni (`GET/POST/PUT
+  /api/segnalazioni`) e `GET /health`.
+- Persistenza verificata: le segnalazioni sopravvivono al riavvio del server.
+- Dati di test pronti in [`dati_db_test.sql`](./dati_db_test.sql).
+
+**Da fare — lezione 4** (richieste in
+[`lezione-4-http-rest-api-test.md`](./lezione-4-http-rest-api-test.md))
+
+- [ ] Compilare il contratto dell'API: `docs/api.md` **oppure**
+      `docs/openapi.yaml` (ora sono solo template vuoti) con i 3-4 endpoint
+      principali, parametri/corpo e **tutte** le risposte, errori compresi.
+- [ ] Aggiungere la cartella `tests/` con test automatici che girano contro
+      l'API reale: per ogni endpoint happy path + almeno un caso di errore
+      (`400` input non valido, `404` risorsa inesistente, `500` errore server).
+- [ ] Collegare il **frontend** ad almeno un endpoint reale (niente mock).
+- [ ] Aggiungere la **paginazione** agli endpoint di lista (`page`/`pageSize`)
+      e completare gli endpoint REST mancanti.
+- [ ] Trasferire il backlog in issue; tenere il contratto aggiornato **nello
+      stesso commit** del codice che lo implementa.
 
 ## Come contribuire
 

@@ -6,6 +6,13 @@
 | **Cliente** | Aurea Precision Components S.p.A. |
 | **Data** | 23/09/2026 |
 
+> **Nota sullo stato (14/10/2026).** Questa tabella registra le decisioni del
+> cliente. Alcune modifiche qui descritte **non sono ancora implementate** nel
+> codice attuale: RF10 e la gestione delle aree di competenza
+> (`area_managers`), i test citati (`tests/api.test.ts`) e il seed. Vanno
+> considerate ancora da fare; elenco puntuale in "Da fare — lezione 4" nel
+> [`README.md`](../README.md).
+
 ## Domande risolte dal cliente
 
 | # | Domanda | Risposta del cliente (23/09/2026) | Cosa è cambiato nel progetto |

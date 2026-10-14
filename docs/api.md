@@ -1,11 +1,17 @@
-# API — [Nome progetto]
+# API — Access Control Platform
+
+> **STATO: template non ancora compilato.** Qui va scritto il contratto
+> dell'API (3-4 endpoint principali) richiesto dalla lezione 4. Il backend
+> espone già `GET/POST/PUT /api/segnalazioni` e `GET /health`, ma il contratto
+> non è ancora documentato. Elenco puntuale di cosa manca in "Da fare —
+> lezione 4" nel [`README.md`](../README.md).
 
 | | |
 |---|---|
-| **Progetto** | *nome del progetto/cliente* |
-| **Team** | *nome o numero team* |
-| **Data** | *data di questa versione* |
-| **Versione** | *es. v0.1 — solo gli endpoint del laboratorio di oggi* |
+| **Progetto** | Access Control Platform — Aurea Precision Components S.p.A. |
+| **Team** | LeCucciole — Dario D'Alessandro, Nicolò Florean, Gianmarco Tonelli |
+| **Data** | 14/10/2026 |
+| **Versione** | v0.1 — da compilare (solo gli endpoint del laboratorio di oggi) |
 
 *Documentate qui solo gli endpoint che esistono davvero e rispondono. Un
 endpoint non documentato non esiste, per chi deve integrarlo — ma un endpoint
