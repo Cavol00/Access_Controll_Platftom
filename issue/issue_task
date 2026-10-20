@@ -1,8 +1,0 @@
-Divisione delle attività: 21 issue, 7 a testa, ognuna entro la mezza giornata, divise in 4 fasi così i tre lavorano in parallelo:
-
-| Fase | Gianmarco · richiesta di accesso | Nicolò · sicurezza e permessi | Dario · dati, configurazione, console |
-|---|---|---|---|
-| 0 · Fondamenta | T01 scheletro progetto | T02 configurazione e segreti | T03 schema database |
-| 1 · Nucleo | T04 motore di decisione, T05 suoi test | T06 login, T07 controllo ruoli | T08 edifici/aree/varchi, T09 dipendenti e badge |
-| 2 · Funzionalità | T10 richiesta + storico, T11 simulatore | T12 autorizzazioni, T13 revoca + audit | T14 storico con filtri, T15 console configurazione |
-| 3 · Completamento | T16 test storico e tempi, T17 stato sistema | T18-T19 responsabile di area | T20 console autorizzazioni/storico, T21 dati di test + installazione |
