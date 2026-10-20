@@ -1,89 +1,12 @@
-# API — Access Control Platform
-
-> **STATO: template non ancora compilato.** Qui va scritto il contratto
-> dell'API (3-4 endpoint principali) richiesto dalla lezione 4. Il backend
-> espone già `GET/POST/PUT /api/segnalazioni` e `GET /health`, ma il contratto
-> non è ancora documentato. Elenco puntuale di cosa manca in "Da fare —
-> lezione 4" nel [`README.md`](../README.md).
-
-| | |
-|---|---|
-| **Progetto** | Access Control Platform — Aurea Precision Components S.p.A. |
-| **Team** | LeCucciole — Dario D'Alessandro, Nicolò Florean, Gianmarco Tonelli |
-| **Data** | 14/10/2026 |
-| **Versione** | v0.1 — da compilare (solo gli endpoint del laboratorio di oggi) |
-
-*Documentate qui solo gli endpoint che esistono davvero e rispondono. Un
-endpoint non documentato non esiste, per chi deve integrarlo — ma un endpoint
-documentato e non funzionante è peggio: cancellatelo o segnalatelo come non
-pronto.*
-
-## Convenzioni generali
-
-*Descrivete in 3-4 righe cosa vale per tutta l'API: formato dei dati, base
-path, come sono strutturati gli errori. Non ripetetelo per ogni endpoint.*
-
-Esempio (Smart Maintenance):
-
-> Tutte le risposte sono JSON. Gli errori hanno sempre la forma
-> `{ "errore": "descrizione leggibile" }` insieme allo status code corretto —
-> mai un `200 OK` con l'esito scritto nel corpo. Le liste sono paginate con
-> `page` e `pageSize` in query string.
-
-## Endpoint
-
-*Un blocco per ciascun endpoint documentato oggi (3-4, non tutta l'API).
-Copiate il blocco sotto per ognuno.*
-
-### `GET /interventi/{id}`
-
-*Descrizione in una riga: cosa fa, per chi.*
-
-Esempio: recupera il dettaglio di un intervento esistente.
-
-**Parametri**
-
-| Nome | In | Tipo | Obbligatorio | Descrizione |
-|---|---|---|---|---|
-| `id` | path | intero | sì | identificativo dell'intervento |
-
-**Risposte**
-
-| Status | Quando | Corpo (esempio) |
-|---|---|---|
-| `200 OK` | l'intervento esiste | `{ "id": 42, "edificio": "Sede Nord", "stato": "assegnato" }` |
-| `404 Not Found` | nessun intervento con questo id | `{ "errore": "intervento non trovato" }` |
-
-### `POST /interventi`
-
-*Descrizione in una riga.*
-
-Esempio: crea un nuovo intervento a partire da una segnalazione.
-
-**Corpo della richiesta**
-
-```json
-{ "edificio": "sede-nord", "categoria": "elettrico", "descrizione": "..." }
-```
-
-**Risposte**
-
-| Status | Quando | Corpo (esempio) |
-|---|---|---|
-| `201 Created` | dati validi | `{ "id": 43, "stato": "segnalato" }` |
-| `400 Bad Request` | campo obbligatorio mancante (es. `edificio`) | `{ "errore": "campo edificio obbligatorio" }` |
-
-*(Aggiungete qui gli altri 1-2 endpoint del laboratorio, con la stessa
-struttura: parametri o corpo richiesta, e ogni risposta possibile — successo
-ed errori — non solo quella positiva.)*
-
 ## Test collegati
 
-*Per ciascun endpoint sopra, indicate dove sono i test che lo verificano
-(cartella `tests/`) e quali casi coprono. Non serve incollare il codice qui,
-basta il collegamento.*
+Tutti i test sono in `tests/segnalazioni.test.ts` e si lanciano con `npm test`.
 
-Esempio:
-
-> `GET /interventi/{id}` → `tests/test_interventi.py::test_get_esistente`,
-> `tests/test_interventi.py::test_get_inesistente`
+- `POST /api/segnalazioni` → "con dati validi crea l'evento e risponde 201",
+  "senza result risponde 400", "con un esito diverso da … risponde 400",
+  "con JSON malformato risponde 400, non 500"
+- `GET /api/segnalazioni` → "risponde 200 con la lista …",
+  "se il database non è disponibile … risponde 500"
+- `PUT /api/segnalazioni/:id` → "su un evento esistente risponde 200",
+  "su un id inesistente risponde 404", "con dati non validi risponde 400"
+- `GET /health` → "risponde 200 con status ok"

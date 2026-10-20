@@ -16,82 +16,169 @@ di accesso di un badge a un varco, concede o nega l'ingresso in base ai
 permessi configurati e conserva lo storico di tutti i tentativi per analisi e
 audit. Dettagli in [`docs/requirements.md`](./docs/requirements.md).
 
-## Stack
+## Il problema 
 
-```
-Stack:    Node.js + TypeScript + Express
-Frontend: HTML/CSS/JavaScript senza framework, servito dal backend
-Database: SQLite (modulo nativo node:sqlite)
-```
+Aurea Precision Components S.p.A., azienda di produzione meccanica di precisione, gestisce oggi i permessi di accesso alle sue aree
+(uffici, reparti produttivi, laboratori, magazzino, sala sistemi) in modo frammentato. Alcune di queste aree devono essere accessibili 
+solo a personale autorizzato. Senza un sistema centrale non si può garantire che entri solo chi ne ha diritto, né ricostruire dopo chi 
+ha tentato di accedere, dove e quando.
 
-## Come si esegue
+L’azienda chiede una piattaforma centralizzata che:
 
-```
+gestisca utenti, badge, edifici, aree, varchi e autorizzazioni;
+valuti ogni richiesta di accesso (badge, varco, timestamp) e risponda ACCESS_GRANTED o ACCESS_DENIED secondo regole configurate;
+registri ogni tentativo con esito e motivazione, e permetta agli amministratori di consultare lo storico e vedere i tentativi negati.
+
+Vincoli principali
+
+Nella prima fase non ci sono lettori badge reali: un simulatore software invia le richieste come se arrivassero dai varchi.
+I badge devono essere dati di test.
+La dimostrazione deve includere utenti con permessi diversi e più aree.
+La decisione di concedere o negare l’accesso deve restare completamente deterministica, basata sulle regole configurate. L’AI può solo
+supportare gli operatori, ad esempio sintetizzando pattern anomali.
+L’architettura deve restare modulare e pronta a più sedi, più varchi e futuri dispositivi reali.
+
+Stack
+Stack:    Node.js 22.9+ con TypeScript
+Frontend: non ancora presente
+Database: SQLite (modulo node:sqlite integrato in Node, nessun server da installare)
+
+
+Come si esegue
 npm install
-npm run dev              # avvia l'API su http://localhost:3000
-```
+npm start          # avvia il backend
+npm test           # esegue i test
+npm run typecheck  # controllo dei tipi
 
-Il database SQLite viene creato in `data/access-control.sqlite` al primo
-avvio, applicando lo schema in `schema.sql`.
 
-## Struttura del repository
-
-```
+Struttura del repository
 .
-├── README.md                questo file
-├── CONTRIBUTING.md          come contribuire: branch, commit, Definition of Done
-├── schema.sql               schema del database (tabelle e vincoli)
-├── dati_db_test.sql         dati di test da caricare nel database
-├── lezione-4-http-rest-api-test.md  materiale della lezione 4
-├── src/
-│   ├── server.ts            entrypoint: monta i router e avvia il server
-│   ├── db.ts                apertura SQLite e applicazione dello schema
-│   ├── types.ts             modelli (DTO) condivisi
-│   ├── errors.ts            errori applicativi (validazione, non trovato)
-│   ├── controllers/         adapter HTTP verso i servizi
-│   ├── services/            regole del cliente e validazione
-│   └── repositories/        accesso ai dati (unico punto con l'SQL)
-└── docs/
-    ├── requirements.md      requisiti (lezione 1)
-    ├── use-cases.md         casi d'uso (lezione 1)
-    ├── architecture-v1.md   architettura (lezione 1)
-    ├── backlog.md           backlog iniziale (lezione 1)
-    ├── domande-cliente.md   domande al cliente e risposte (lezione 1)
-    ├── data-model.md        modello dati: entità, relazioni, schema (lezione 3)
-    ├── api.md               contratto API — template, DA COMPILARE (lezione 4)
-    └── openapi.yaml         contratto OpenAPI — template, DA COMPILARE (lezione 4)
-```
+├── README.md          questo file
+├── CONTRIBUTING.md    branch, commit, Definition of Done
+├── package.json       dipendenze e comandi
+├── src/               codice del backend
+└── docs/              documentazione (requisiti, casi d'uso, architettura, uso dell'AI)
 
-## Stato del progetto
 
-**Fatto — fino alla lezione 3**
+## Backlog
 
-- Schema dati completo in `schema.sql` (dipendenti, badge, edifici, aree,
-  varchi, autorizzazioni, segnalazioni) e documentato in
-  [`docs/data-model.md`](./docs/data-model.md).
-- Backend collegato a SQLite e riorganizzato a livelli (controller → servizio
-  → repository), con un CRUD delle segnalazioni (`GET/POST/PUT
-  /api/segnalazioni`) e `GET /health`.
-- Persistenza verificata: le segnalazioni sopravvivono al riavvio del server.
-- Dati di test pronti in [`dati_db_test.sql`](./dati_db_test.sql).
+Voci ordinate per valore e rischio: prima ciò che, se sbagliato, costringerebbe a cambiare l’architettura. Ogni “Fatto quando” si verifica con un sì o un no. Le risposte del cliente alle domande aperte (domande-cliente.md) sono già incluse.
 
-**Da fare — lezione 4** (richieste in
-[`lezione-4-http-rest-api-test.md`](./lezione-4-http-rest-api-test.md))
+Voci
+1. Valutare una richiesta di accesso
+Come simulatore lettore badge voglio inviare badge, varco e orario e ricevere ACCESS_GRANTED o ACCESS_DENIED, per sapere se aprire il varco.
 
-- [ ] Compilare il contratto dell'API: `docs/api.md` **oppure**
-      `docs/openapi.yaml` (ora sono solo template vuoti) con i 3-4 endpoint
-      principali, parametri/corpo e **tutte** le risposte, errori compresi.
-- [ ] Aggiungere la cartella `tests/` con test automatici che girano contro
-      l'API reale: per ogni endpoint happy path + almeno un caso di errore
-      (`400` input non valido, `404` risorsa inesistente, `500` errore server).
-- [ ] Collegare il **frontend** ad almeno un endpoint reale (niente mock).
-- [ ] Aggiungere la **paginazione** agli endpoint di lista (`page`/`pageSize`)
-      e completare gli endpoint REST mancanti.
-- [ ] Trasferire il backlog in issue; tenere il contratto aggiornato **nello
-      stesso commit** del codice che lo implementa.
+Fatto quando:
+
+la risposta contiene sempre ACCESS_GRANTED o ACCESS_DENIED, mai altro
+un badge autorizzato sull’area del varco riceve ACCESS_GRANTED
+lo stesso badge su un varco di un’altra area riceve ACCESS_DENIED
+badge sconosciuto, badge disattivato o varco sconosciuto ricevono ACCESS_DENIED
+la risposta arriva entro 5 secondi (soglia data dal cliente)
+due richieste identiche, con la stessa configurazione, ricevono lo stesso esito
+Perché qui: è il cuore del sistema; se il modello badge → area → varco è sbagliato, cambia tutto il resto.
+
+2. Registrare ogni tentativo
+Come amministratore sicurezza voglio che ogni tentativo di accesso, concesso o negato, resti registrato con esito e motivazione, per poter ricostruire chi ha provato ad accedere, dove e quando.
+
+Fatto quando:
+
+dopo N richieste di accesso lo storico contiene esattamente N righe nuove
+ogni riga riporta badge, varco, area, data e ora, esito e motivazione
+nessuna funzione del sistema permette di modificare o cancellare una riga dello storico
+Perché qui: è un criterio di accettazione del cliente e decide la struttura dei dati (storico immutabile).
+
+3. Accesso degli operatori con credenziali e ruolo
+Come amministratore sicurezza voglio che la console si usi solo dopo il login, e che ogni operatore possa fare solo ciò che il suo ruolo consente, per impedire modifiche ai permessi da parte di chi non è autorizzato.
+
+Fatto quando:
+
+senza login nessuna funzione amministrativa è utilizzabile
+con password errata il login viene rifiutato
+un operatore che tenta un’operazione non permessa al suo ruolo viene respinto con un errore esplicito
+nessuna password o chiave è scritta nel codice sorgente
+Perché qui: il modello dei ruoli condiziona le voci 7–9.
+
+4. Edifici, aree e varchi
+Come amministratore sicurezza voglio definire edifici, aree e varchi, per descrivere nel sistema la struttura fisica della sede.
+
+Fatto quando:
+
+posso creare ed eliminare edifici, aree e varchi
+ogni area appartiene a un edificio, ogni varco a una sola area
+una richiesta di accesso su un varco appena creato viene valutata, non respinta come “varco sconosciuto”
+Perché qui: senza struttura fisica non si può autorizzare nulla.
+
+5. Dipendenti e badge
+Come amministratore sicurezza voglio registrare un dipendente con il suo badge e poterlo disattivare, per controllare quali badge sono in uso.
+
+Fatto quando:
+
+posso creare un dipendente e assegnargli un badge
+un secondo badge per lo stesso dipendente viene rifiutato con un errore comprensibile (un badge per dipendente, confermato dal cliente)
+un badge disattivato riceve ACCESS_DENIED anche se ha autorizzazioni attive
+Perché qui: serve prima di poter autorizzare.
+
+6. Autorizzare un badge su una o più aree
+Come amministratore sicurezza voglio autorizzare un badge su una o più aree, anche con una data di fine, per stabilire chi può entrare dove e fino a quando.
+
+Fatto quando:
+
+dopo l’autorizzazione il badge riceve ACCESS_GRANTED sui varchi di quell’area
+lo stesso badge può essere autorizzato su più aree contemporaneamente (confermato dal cliente)
+dopo la data di fine, l’accesso a quell’area viene negato
+Perché qui: è la regola su cui lavora la voce 1.
+
+7. Revocare un’autorizzazione
+Come amministratore sicurezza voglio revocare un’autorizzazione, per togliere un accesso quando cambia il ruolo di un dipendente.
+
+Fatto quando:
+
+la prima richiesta dopo la revoca riceve ACCESS_DENIED
+gli eventi registrati prima della revoca restano invariati
+un registro delle modifiche (audit log) riporta chi ha revocato, quale autorizzazione e quando
+Perché qui: è un criterio di accettazione del cliente (“le modifiche ai permessi influenzano le richieste successive”).
+
+8. Consultare lo storico
+Come amministratore sicurezza voglio consultare lo storico filtrandolo per badge, varco ed esito, per analizzare i tentativi negati.
+
+Fatto quando:
+
+ogni filtro restituisce solo eventi che lo soddisfano
+filtrando per esito “negati” compaiono solo eventi ACCESS_DENIED
+nella console i negati sono distinguibili dai concessi a colpo d’occhio
+Perché qui: è un criterio di accettazione del cliente, ma dipende dalle voci 2 e 3.
+
+9. Il responsabile di area governa solo la propria area
+Come responsabile di area voglio vedere lo storico e gestire le autorizzazioni solo delle mie aree, per controllare gli accessi del mio reparto senza toccare quelli degli altri.
+
+Fatto quando:
+
+lo storico mostra solo eventi delle sue aree, anche interrogando il sistema senza passare dalla console
+può creare e revocare autorizzazioni sulle sue aree
+un’autorizzazione su un’area non sua viene rifiutata con un errore esplicito
+Perché qui: è una richiesta esplicita del cliente e cambia il modello dei permessi, ma si appoggia alle voci 3, 6 e 7.
+
+10. Monitorare lo stato del sistema
+Come amministratore tecnico voglio sapere se il backend e il database funzionano e quando è arrivata l’ultima richiesta dal simulatore, per diagnosticare un problema di comunicazione.
+
+Fatto quando:
+
+esiste un controllo di stato che risponde positivamente quando il backend è attivo
+lo stato dettagliato indica se il database è raggiungibile e l’ora dell’ultimo evento ricevuto dal simulatore
+la procedura di avvio e verifica è scritta nella documentazione
+Perché qui: utile all’esercizio, ma non blocca nessun’altra funzionalità.
+
+Fuori dal backlog iniziale
+Fasce orarie ricorrenti (es. accesso solo 8–18 nei giorni feriali): il cliente le indica come evoluzione futura. La v1 prevede solo una data di fine (voce 6).
+Rilevamento automatico dei tentativi “anomali”: in attesa di una definizione dal cliente (domanda #5). La v1 evidenzia i negati (voce 8).
+Esportazione degli eventi verso sistemi esterni: integrazione futura dichiarata dal cliente, fuori dal perimetro della v1.
 
 ## Come contribuire
 
 Branch strategy, convenzioni di commit e Definition of Done sono in
 [`CONTRIBUTING.md`](./CONTRIBUTING.md) — leggetelo prima di aprire il primo
 branch.
+
+
+

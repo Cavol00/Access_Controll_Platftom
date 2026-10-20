@@ -8,9 +8,7 @@
 | **Versione** | v0.1 |
 
 Queste regole valgono per **tutti** i membri del team, comprese le persone che
-le hanno scritte. Se una regola non viene rispettata da nessuno, cambiatela
-qui — non ignoratela in silenzio.
-
+le hanno scritte.
 ## Branch strategy
 
 ```
