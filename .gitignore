@@ -3,3 +3,6 @@ dist/
 data/*.sqlite
 data/*.sqlite-*
 .env
+
+# materiale delle lezioni (PDF): non fa parte del progetto
+*.pdf
