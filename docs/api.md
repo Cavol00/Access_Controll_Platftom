@@ -10,10 +10,8 @@
 Qui sono documentati solo gli endpoint che esistono e rispondono. Il codice
 che li implementa è in `src/controllers/`, i test in `tests/`.
 
-> **Non ancora pronto:** il login degli operatori non c'è ancora (voce 3 del
-> backlog, a priorità alta, issue T06 e T07): `GET /api/access-events` oggi è
-> aperto. `POST /api/access-events` invece richiede già la chiave del lettore
-> badge (T10).
+`POST /api/access-events` richiede la chiave del lettore badge (T10). La
+protezione delle altre rotte con il login e i ruoli arriva con T07.
 
 ## Convenzioni generali
 
@@ -25,6 +23,24 @@ registrata, quindi risponde `201` con `"result": "ACCESS_DENIED"`. Date e
 orari sono stringhe ISO 8601 in UTC (es. `2026-10-15T08:00:00.000Z`).
 
 ## Endpoint
+
+### `POST /api/auth/login`
+
+Effettua il login di un operatore attivo. Il token restituito vale 8 ore; le
+sessioni sono mantenute solo in memoria e dopo un riavvio è necessario rifare il
+login. Gli operatori si creano con `npm run crea-operatore`.
+
+**Corpo della richiesta**
+
+```json
+{ "username": "admin.sicurezza", "password": "password-di-prova" }
+```
+
+| Status | Quando | Corpo |
+|---|---|---|
+| `200 OK` | credenziali corrette | `{ "token": "9f3c...", "username": "admin.sicurezza", "role": "admin_sicurezza", "expires_at": "2026-11-04T18:00:00.000Z" }` |
+| `400 Bad Request` | username o password mancanti | `{ "error": "username e password sono obbligatori" }` |
+| `401 Unauthorized` | utente inesistente, password errata o operatore inattivo | `{ "error": "credenziali non valide" }` |
 
 ### `GET /health`
 

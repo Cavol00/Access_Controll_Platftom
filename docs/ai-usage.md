@@ -235,3 +235,28 @@ login (T06/T07); una richiesta senza chiave non viene registrata nello storico,
 perché non arriva da un lettore badge e quindi non è un tentativo di accesso.
 
 **Dati sensibili nei prompt**: nessuno; la chiave vera sta solo nel nostro .env.
+
+## Caso 9 — Login degli operatori (T06)
+
+**Data**: 04/11/2026 — **Chi**: Nicolò Florean
+
+**Cosa abbiamo chiesto**: come aggiungere il login degli operatori senza
+salvare password in chiaro e senza librerie esterne.
+
+**Cosa abbiamo ottenuto**: tabella `operators` con hash scrypt e ruolo, sessioni
+in memoria con token casuali, `POST /api/auth/login`, il comando
+`npm run crea-operatore` e cinque test dedicati.
+
+**Cosa abbiamo verificato e come**:
+- `npm test`, `npm run typecheck`, `npm run build` e `git diff --check`;
+- prova controllata del comando di creazione e del login, inclusi i due 401
+  indistinguibili per password errata e utente inesistente;
+- controprova rimuovendo temporaneamente la verifica della password: il test
+  della password errata è fallito, poi il codice è stato ripristinato.
+
+**Cosa abbiamo tenuto o corretto, e perché**: le sessioni restano in memoria,
+come deciso nel modello dati, così non persistono token utilizzabili; il
+messaggio unico per gli errori di autenticazione evita di rivelare quali
+username esistono.
+
+**Dati sensibili nei prompt**: nessuno; solo password di prova inventate.

@@ -27,6 +27,7 @@ Entità
 | Autorizzazione | id (intero), badge_id, area_id, valida_dal (data/ora), valida_fino (data/ora, facoltativa), revocata_il (data/ora, facoltativa), creata_il (data/ora) | → Badge · → Area |
 | EventoAccesso | id (intero), codice_badge (testo), codice_varco (testo), area_id (facoltativo), richiesto_il (data/ora), esito (ACCESS_GRANTED/ACCESS_DENIED), motivazione (testo), registrato_il (data/ora) | → Area, se il varco esisteva |
 | ModificaAutorizzazione | id (intero), autorizzazione_id, azione (CREATED/REVOKED), fatta_da (testo), fatta_il (data/ora) | → Autorizzazione |
+| Operatore | id, username (unico), password_hash scrypt, ruolo, attivo | sessione temporanea in memoria |
 
 → = "riferisce", ← = "è referenziata da".
 Sostantivi scartati
@@ -59,11 +60,13 @@ Per ora è un'annotazione: l'autorizzazione vera arriva più avanti nel corso.
 | Update | disattiva o riattiva | revoca (imposta revocata_il) | come Create |
 | Delete | elimina un badge assegnato per errore | non previsto: si revoca, non si cancella | Amministratore sicurezza |
 
-Entità previste, non ancora nello schema
-Operatore (chi usa la console: username, password cifrata, ruolo) e
-l'associazione con le aree di cui è responsabile.
+Operatore è nello schema dalla T06 (tabella `operators`: username unico, hash
+della password calcolato con scrypt, mai la password in chiaro, ruolo, attivo).
+La sessione dell'operatore collegato resta in memoria: dopo un riavvio gli
+operatori devono rifare il login.
 
-Entrano nello schema quando si costruiscono autenticazione e permessi.
+Entità prevista, non ancora nello schema: l'associazione tra un responsabile di
+area e le aree di cui è responsabile (arriva con T18).
 ## Schema delle tabelle.
 erDiagram
   edifici ||--o{ aree : contiene
