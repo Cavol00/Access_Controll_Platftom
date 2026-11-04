@@ -69,3 +69,24 @@ BEFORE DELETE ON access_events
 BEGIN
   SELECT RAISE(ABORT, 'lo storico degli accessi non è modificabile');
 END;
+
+-- Registro immutabile delle modifiche alle autorizzazioni.
+CREATE TABLE IF NOT EXISTS authorization_changes (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  authorization_id INTEGER NOT NULL REFERENCES authorizations(id),
+  action TEXT NOT NULL CHECK (action IN ('CREATED', 'REVOKED')),
+  changed_by TEXT NOT NULL,
+  changed_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TRIGGER IF NOT EXISTS authorization_changes_no_update
+BEFORE UPDATE ON authorization_changes
+BEGIN
+  SELECT RAISE(ABORT, 'il registro delle modifiche non è modificabile');
+END;
+
+CREATE TRIGGER IF NOT EXISTS authorization_changes_no_delete
+BEFORE DELETE ON authorization_changes
+BEGIN
+  SELECT RAISE(ABORT, 'il registro delle modifiche non è modificabile');
+END;
