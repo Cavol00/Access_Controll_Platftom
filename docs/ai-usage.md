@@ -40,7 +40,11 @@ il docente nel riscontro del 15/10/2026.
   `src/db/schema.sql`) e la nota di RF10, che parlava di una richiesta "dopo la
   prima consegna" mentre è la risposta del cliente alla domanda #6 del
   23/09/2026; tolto un esempio rimasto dal template del corso
-- use-cases (Nicolò): *(da completare nella sua PR)*
+- use-cases (Nicolò): ho riallineato `docs/use-cases.md` al sistema reale, con
+  team e data corretti, UC1 allineato a `POST /api/access-events` e alla
+  registrazione dei tentativi con badge o varco sconosciuti, stati aggiunti a
+  tutti gli UC, attività future indicate con issue/T e la nota di UC6 ricondotta
+  alla risposta del cliente alla domanda #6.
 - backlog (Nicolò): portato in `docs/backlog.md` con l'autenticazione a
   priorità alta (PR #48)
 - architecture-v1 e domande-cliente (Dario): *(da completare nella sua PR)*
