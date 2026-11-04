@@ -2,137 +2,170 @@
 
 | | |
 |---|---|
-| **Team** | *(nome team — da definire)* — Dario D'Alessandro, Nicolò Florean, Gianmarco Tonelli |
+| **Team** | LeCucciole — Dario D'Alessandro, Nicolò Florean, Gianmarco Tonelli |
 | **Cliente** | Aurea Precision Components S.p.A. |
-| **Data** | 23/09/2026 |
+| **Data** | 20/10/2026 |
+
+Voci ordinate per valore e rischio: prima ciò che, se sbagliato, costringerebbe
+a cambiare l'architettura. Ogni "Fatto quando" si verifica con un sì o un no.
+Le risposte del cliente alle domande aperte (`domande-cliente.md`) sono già
+incluse. Ogni voce è una o più issue su GitHub; la voce 3 ha priorità alta.
 
 ## Voci
 
-### 1.
+### 1. Valutare una richiesta di accesso
 
-Come simulatore lettore badge voglio inviare una richiesta di accesso (badge,
-varco, timestamp) e ricevere `ACCESS_GRANTED` o `ACCESS_DENIED`, per
-verificare in tempo reale se un dipendente può entrare in un'area.
-
-**Fatto quando:**
-- la richiesta restituisce sempre uno dei due esiti
-- un badge con permesso attivo sull'area riceve `GRANTED`
-- un badge senza permesso riceve `DENIED`
-- l'esito è deterministico: stessa richiesta, stessa configurazione, stessa risposta
-
-### 2.
-
-Come amministratore sicurezza voglio configurare edifici, aree e varchi, per
-definire il perimetro fisico su cui si applicano le autorizzazioni.
+Come simulatore lettore badge voglio inviare badge, varco e orario e ricevere
+`ACCESS_GRANTED` o `ACCESS_DENIED`, per sapere se aprire il varco.
 
 **Fatto quando:**
-- posso creare, modificare ed eliminare edifici, aree e varchi
-- ogni varco è associato a una sola area
-- le modifiche sono visibili subito nella configurazione
+- la risposta contiene sempre `ACCESS_GRANTED` o `ACCESS_DENIED`, mai altro
+- un badge autorizzato sull'area del varco riceve `ACCESS_GRANTED`
+- lo stesso badge su un varco di un'altra area riceve `ACCESS_DENIED`
+- badge sconosciuto, badge disattivato o varco sconosciuto ricevono `ACCESS_DENIED`
+- la risposta arriva entro 5 secondi (soglia data dal cliente)
+- due richieste identiche, con la stessa configurazione, ricevono lo stesso esito
 
-### 3.
+*Perché qui:* è il cuore del sistema; se il modello badge → area → varco è
+sbagliato, cambia tutto il resto.
 
-Come amministratore sicurezza voglio creare utenti e badge virtuali e
-associarli ad aree autorizzate, per stabilire chi può accedere dove.
+### 2. Registrare ogni tentativo
 
-**Fatto quando:**
-- posso creare un utente con uno o più badge
-- posso associare o rimuovere un'autorizzazione tra un badge e un'area
-- un badge senza autorizzazioni non ottiene mai `GRANTED`
-
-### 4.
-
-Come sistema voglio registrare ogni tentativo di accesso con esito e
-motivazione, per mantenere uno storico affidabile e verificabile.
+Come amministratore sicurezza voglio che ogni tentativo di accesso, concesso o
+negato, resti registrato con esito e motivazione, per poter ricostruire chi ha
+provato ad accedere, dove e quando.
 
 **Fatto quando:**
-- ogni richiesta valutata genera una riga di storico
-- la riga contiene badge, varco, area, timestamp, esito e motivazione
-- lo storico non è modificabile dagli operatori
+- dopo N richieste di accesso lo storico contiene esattamente N righe nuove
+- ogni riga riporta badge, varco, area, data e ora, esito e motivazione
+- nessuna funzione del sistema permette di modificare o cancellare una riga dello storico
 
-### 5.
+*Perché qui:* è un criterio di accettazione del cliente e decide la struttura
+dei dati (storico immutabile).
 
-Come amministratore sicurezza voglio consultare e filtrare lo storico degli
-accessi per badge, area, varco e periodo, per analizzare eventi e anomalie.
+### 3. Accesso degli operatori con credenziali e ruolo
 
-**Fatto quando:**
-- posso filtrare almeno per badge, area e intervallo di date
-- i tentativi negati sono visivamente distinti dagli altri
-- la ricerca restituisce solo risultati coerenti con i filtri applicati
+**Priorità: alta** — oggi nessun endpoint richiede autenticazione, e per una
+piattaforma di controllo accessi è il difetto più grave (riscontro del
+docente, 15/10/2026). Va fatta subito dopo la voce 1, prima di aggiungere
+altri endpoint di configurazione.
 
-### 6.
-
-Come responsabile di area voglio consultare lo storico degli accessi solo per
-le aree di mia competenza, per non vedere dati che non mi riguardano.
-
-**Fatto quando:**
-- la lista mostra solo gli eventi delle aree assegnate al responsabile
-- un responsabile non vede eventi di altre aree nemmeno chiamando l'API a mano
-- le aree di competenza di un responsabile sono configurabili dall'amministratore sicurezza
-
-### 7.
-
-Come amministratore sicurezza voglio modificare o revocare un'autorizzazione
-esistente, per adeguare gli accessi quando cambia il ruolo di un dipendente.
+Come amministratore sicurezza voglio che la console si usi solo dopo il login,
+e che ogni operatore possa fare solo ciò che il suo ruolo consente, per
+impedire modifiche ai permessi da parte di chi non è autorizzato.
 
 **Fatto quando:**
-- dopo la modifica, le richieste successive riflettono il nuovo permesso
-- le richieste già registrate nello storico non cambiano
-- la modifica stessa è tracciata: chi l'ha fatta, cosa ha cambiato, quando
+- senza login nessuna funzione amministrativa è utilizzabile
+- con password errata il login viene rifiutato
+- un operatore che tenta un'operazione non permessa al suo ruolo viene respinto con un errore
+  esplicito
+- nessuna password o chiave è scritta nel codice sorgente
 
-### 8.
+*Perché qui:* senza autenticazione chiunque raggiunga l'API può leggere lo
+storico e, quando esisteranno, modificare i permessi; inoltre il modello dei
+ruoli condiziona le voci 7–9.
 
-Come operatore (amministratore sicurezza o tecnico) voglio autenticarmi prima
-di accedere alla console, per garantire che solo personale autorizzato
-configuri il sistema.
+### 4. Edifici, aree e varchi
 
-**Fatto quando:**
-- senza autenticazione non è possibile usare nessuna funzione della console
-- le operazioni disponibili dipendono dal ruolo dell'operatore
-- un tentativo di accesso non autorizzato viene respinto e registrato
-
-### 9.
-
-Come amministratore tecnico voglio monitorare lo stato dei componenti, in
-particolare la comunicazione tra simulatore e backend, per diagnosticare
-rapidamente un malfunzionamento.
+Come amministratore sicurezza voglio definire edifici, aree e varchi, per
+descrivere nel sistema la struttura fisica della sede.
 
 **Fatto quando:**
-- esiste una vista o un endpoint che mostra lo stato dei componenti principali
-- un'interruzione di comunicazione è visibile entro pochi secondi
-- esiste una procedura documentata per la verifica
+- posso creare ed eliminare edifici, aree e varchi
+- ogni area appartiene a un edificio, ogni varco a una sola area
+- una richiesta di accesso su un varco appena creato viene valutata, non
+  respinta come "varco sconosciuto"
 
-### 10.
+*Perché qui:* senza struttura fisica non si può autorizzare nulla.
 
-Come amministratore sicurezza voglio poter definire fasce orarie o
-autorizzazioni temporanee per un badge, per gestire casi come consulenti
-esterni o turni straordinari.
+### 5. Dipendenti e badge
+
+Come amministratore sicurezza voglio registrare un dipendente con il suo badge
+e poterlo disattivare, per controllare quali badge sono in uso.
 
 **Fatto quando:**
-- un'autorizzazione può avere una data/ora di inizio e fine opzionali
-- fuori dalla fascia configurata l'accesso viene negato anche se l'autorizzazione esiste
-- *voce a rischio: può restare fuori dal primo rilascio se il tempo non basta*
+- posso creare un dipendente e assegnargli un badge
+- un secondo badge per lo stesso dipendente viene rifiutato con un errore
+  comprensibile (un badge per dipendente, confermato dal cliente)
+- un badge disattivato riceve `ACCESS_DENIED` anche se ha autorizzazioni attive
 
----
+*Perché qui:* serve prima di poter autorizzare.
 
-## Lezione 4 — da fare (contratto API e test)
+### 6. Autorizzare un badge su una o più aree
 
-Obiettivo della lezione: rendere il contratto tra frontend e backend
-**scritto, leggibile e verificabile** (OpenAPI e primi test delle API).
-Riferimento: [`../lezione-4-http-rest-api-test.md`](../lezione-4-http-rest-api-test.md).
+Come amministratore sicurezza voglio autorizzare un badge su una o più aree,
+anche con una data di fine, per stabilire chi può entrare dove e fino a quando.
 
-Stato attuale: il backend espone `GET/POST/PUT /api/segnalazioni` e
-`GET /health`. Le voci sotto **non sono ancora state fatte**.
+**Fatto quando:**
+- dopo l'autorizzazione il badge riceve `ACCESS_GRANTED` sui varchi di quell'area
+- lo stesso badge può essere autorizzato su più aree contemporaneamente
+  (confermato dal cliente)
+- dopo la data di fine, l'accesso a quell'area viene negato
 
-- [ ] **Contratto scritto** dei 3-4 endpoint principali in `docs/api.md`
-      oppure `docs/openapi.yaml` (oggi sono solo template vuoti): parametri o
-      corpo della richiesta e *tutte* le risposte, errori compresi.
-- [ ] **Test automatici** in `tests/`, eseguiti contro l'API reale: per ogni
-      endpoint happy path + almeno un caso di errore (`400` input non valido,
-      `404` risorsa inesistente, `500` errore lato server).
-- [ ] **Frontend collegato** ad almeno un endpoint reale (niente mock).
-- [ ] **Paginazione** (`page`/`pageSize`) sugli endpoint di lista.
-- [ ] Endpoint REST ancora mancanti rispetto a `use-cases.md` (es. il
-      dettaglio e l'eliminazione dell'endpoint `segnalazioni`).
-- [ ] Contratto aggiornato **nello stesso commit** del codice che lo
-      implementa.
+*Perché qui:* è la regola su cui lavora la voce 1.
+
+### 7. Revocare un'autorizzazione
+
+Come amministratore sicurezza voglio revocare un'autorizzazione, per togliere
+un accesso quando cambia il ruolo di un dipendente.
+
+**Fatto quando:**
+- la prima richiesta dopo la revoca riceve `ACCESS_DENIED`
+- gli eventi registrati prima della revoca restano invariati
+- un registro delle modifiche (audit log) riporta chi ha revocato, quale
+  autorizzazione e quando
+
+*Perché qui:* è un criterio di accettazione del cliente ("le modifiche ai
+permessi influenzano le richieste successive").
+
+### 8. Consultare lo storico
+
+Come amministratore sicurezza voglio consultare lo storico filtrandolo per
+badge, varco ed esito, per analizzare i tentativi negati.
+
+**Fatto quando:**
+- ogni filtro restituisce solo eventi che lo soddisfano
+- filtrando per esito "negati" compaiono solo eventi `ACCESS_DENIED`
+- nella console i negati sono distinguibili dai concessi a colpo d'occhio
+
+*Perché qui:* è un criterio di accettazione del cliente, ma dipende dalle
+voci 2 e 3.
+
+### 9. Il responsabile di area governa solo la propria area
+
+Come responsabile di area voglio vedere lo storico e gestire le autorizzazioni
+solo delle mie aree, per controllare gli accessi del mio reparto senza toccare
+quelli degli altri.
+
+**Fatto quando:**
+- lo storico mostra solo eventi delle sue aree, anche interrogando il sistema
+  senza passare dalla console
+- può creare e revocare autorizzazioni sulle sue aree
+- un'autorizzazione su un'area non sua viene rifiutata con un errore esplicito
+
+*Perché qui:* è una richiesta esplicita del cliente e cambia il modello dei
+permessi, ma si appoggia alle voci 3, 6 e 7.
+
+### 10. Monitorare lo stato del sistema
+
+Come amministratore tecnico voglio sapere se il backend e il database
+funzionano e quando è arrivata l'ultima richiesta dal simulatore, per
+diagnosticare un problema di comunicazione.
+
+**Fatto quando:**
+- esiste un controllo di stato che risponde positivamente quando il backend è attivo
+- lo stato dettagliato indica se il database è raggiungibile e l'ora
+  dell'ultimo evento ricevuto dal simulatore
+- la procedura di avvio e verifica è scritta nella documentazione
+
+*Perché qui:* utile all'esercizio, ma non blocca nessun'altra funzionalità.
+
+## Fuori dal backlog iniziale
+
+- **Fasce orarie ricorrenti** (es. accesso solo 8–18 nei giorni feriali): il
+  cliente le indica come evoluzione futura. La v1 prevede solo una data di
+  fine (voce 6).
+- **Rilevamento automatico dei tentativi "anomali"**: in attesa di una
+  definizione dal cliente (domanda #5). La v1 evidenzia i negati (voce 8).
+- **Esportazione degli eventi verso sistemi esterni**: integrazione futura
+  dichiarata dal cliente, fuori dal perimetro della v1.
