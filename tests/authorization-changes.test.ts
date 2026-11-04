@@ -3,6 +3,9 @@ import assert from "node:assert/strict";
 import type { DatabaseSync } from "node:sqlite";
 
 process.env.DB_PATH = ":memory:";
+// Serve da quando la T10 rende obbligatoria la chiave del lettore badge:
+// config.ts la legge appena db.ts viene importato.
+process.env.SIMULATOR_API_KEY = "chiave-di-test";
 
 let db: DatabaseSync;
 

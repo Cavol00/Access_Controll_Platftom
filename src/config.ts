@@ -11,5 +11,5 @@ function required(name: string): string {
 export const config = {
   port: Number(process.env.PORT ?? 3000),
   dbPath: required("DB_PATH"),
+  simulatorApiKey: required("SIMULATOR_API_KEY"),
 };
-

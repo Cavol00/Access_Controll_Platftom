@@ -10,9 +10,10 @@
 Qui sono documentati solo gli endpoint che esistono e rispondono. Il codice
 che li implementa è in `src/controllers/`, i test in `tests/`.
 
-> **Non ancora pronto:** nessun endpoint richiede autenticazione. È la voce 3
-> del backlog, a priorità alta (issue T06 e T07). Fino ad allora l'API va usata
-> solo in locale, con dati di test.
+> **Non ancora pronto:** il login degli operatori non c'è ancora (voce 3 del
+> backlog, a priorità alta, issue T06 e T07): `GET /api/access-events` oggi è
+> aperto. `POST /api/access-events` invece richiede già la chiave del lettore
+> badge (T10).
 
 ## Convenzioni generali
 
@@ -51,6 +52,7 @@ nello storico. Un campo `result` inviato dal client viene ignorato.
 
 | Nome | In | Tipo | Obbligatorio | Descrizione |
 |---|---|---|---|---|
+| `X-API-Key` | header | testo | sì | chiave del lettore badge, uguale a `SIMULATOR_API_KEY` in `.env` |
 | `badge_code` | body | testo | sì | codice del badge letto |
 | `door_code` | body | testo | sì | codice del varco da cui arriva la richiesta |
 | `requested_at` | body | data ISO 8601 | no | orario della lettura; se manca vale l'orario del server |
@@ -61,6 +63,7 @@ nello storico. Un campo `result` inviato dal client viene ignorato.
 |---|---|---|
 | `201 Created` | badge attivo con autorizzazione valida sull'area del varco | `{ "id": 1, "badge_code": "BADGE-TEST-001", "door_code": "VARCO-LAB-01", "area_id": 2, "requested_at": "2026-10-15T08:00:00.000Z", "result": "ACCESS_GRANTED", "reason": "autorizzazione valida", "recorded_at": "2026-10-15 08:00:00" }` |
 | `201 Created` | badge o varco sconosciuto, badge disattivato, dipendente non attivo, nessuna autorizzazione valida (scaduta, revocata, su un'altra area) | `{ "id": 2, "badge_code": "BADGE-TEST-006", "door_code": "VARCO-UFF-NORD", "area_id": 1, "result": "ACCESS_DENIED", "reason": "badge disattivato", ... }` |
+| `401 Unauthorized` | manca l'header `X-API-Key`, oppure la chiave è sbagliata: la richiesta non viene valutata né registrata | `{ "error": "chiave del lettore badge mancante o non valida" }` |
 | `400 Bad Request` | manca `badge_code` o `door_code`, o è vuoto | `{ "error": "badge_code e door_code sono obbligatori" }` |
 | `400 Bad Request` | `requested_at` non è una data | `{ "error": "requested_at deve essere una data ISO 8601" }` |
 | `400 Bad Request` | il corpo non è JSON valido | `{ "error": "Corpo della richiesta non è JSON valido" }` |
@@ -95,7 +98,8 @@ Si lanciano con `npm test`.
   un'altra area", "badge sconosciuto", "varco sconosciuto", "badge disattivato",
   "autorizzazione revocata", "l'esito inviato dal client viene ignorato",
   "senza badge_code: 400", "con requested_at non valido: 400", "con JSON
-  malformato: 400, non 500"
+  malformato: 400, non 500", "senza X-API-Key: 401 e nessuna riga nello
+  storico", "con una X-API-Key sbagliata: 401"
 - `GET /api/access-events` → "N richieste producono N righe nuove nello
   storico", "se il database non è disponibile … risponde 500"
 - Storico non modificabile → "PUT e DELETE sull'API rispondono 404", "anche dal
@@ -109,6 +113,7 @@ Con il backend avviato e i dati di `dati_db_test.sql` caricati:
 ```bash
 curl -X POST http://localhost:3000/api/access-events \
   -H "Content-Type: application/json" \
+  -H "X-API-Key: LA-CHIAVE-DEL-VOSTRO-.env" \
   -d '{"badge_code":"BADGE-TEST-001","door_code":"VARCO-LAB-01"}'
 ```
 

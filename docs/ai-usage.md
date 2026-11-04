@@ -209,3 +209,29 @@ gli operatori e il login non esistono ancora; quando arriverà l'autenticazione
 potrà essere collegato all'identità dell'operatore senza anticipare T06.
 
 **Dati sensibili nei prompt**: nessuno.
+
+## Caso 8 — Chiave del lettore badge (T10)
+
+**Data**: 04/11/2026 — **Chi**: Gianmarco Tonelli
+
+**Cosa abbiamo chiesto**: come far accettare POST /api/access-events solo al
+lettore badge, con una chiave condivisa e non con il login degli operatori (T10).
+
+**Cosa abbiamo ottenuto**: SIMULATOR_API_KEY obbligatoria in .env; un middleware
+che confronta l'header X-API-Key con timingSafeEqual e risponde 401; un
+UnauthorizedError nella gerarchia degli errori; due test nuovi; api.md e README
+aggiornati.
+
+**Cosa abbiamo verificato e come**:
+- npm test 26/26; npx tsc --noEmit senza errori
+- controprova: tolto requireSimulatorKey dalla rotta, i 2 test della chiave sono
+  falliti; rimesso, 26/26
+- curl senza chiave → 401; curl con la chiave del nostro .env → ACCESS_GRANTED
+- senza SIMULATOR_API_KEY in .env il server non parte
+
+**Cosa abbiamo tenuto o corretto, e perché**: la chiave protegge solo la POST,
+perché la GET dello storico la useranno gli operatori e la proteggerà il loro
+login (T06/T07); una richiesta senza chiave non viene registrata nello storico,
+perché non arriva da un lettore badge e quindi non è un tentativo di accesso.
+
+**Dati sensibili nei prompt**: nessuno; la chiave vera sta solo nel nostro .env.

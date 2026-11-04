@@ -9,6 +9,9 @@ import type { DatabaseSync } from "node:sqlite";
 // data/ non viene mai toccato. DB_PATH va impostato prima di importare l'app,
 // perché db.ts apre il database nel momento dell'import.
 process.env.DB_PATH = ":memory:";
+// Chiave del lettore badge usata solo nei test: non è quella di nessun .env.
+const API_KEY = "chiave-di-test";
+process.env.SIMULATOR_API_KEY = API_KEY;
 
 let server: Server;
 let baseUrl: string;
@@ -48,10 +51,12 @@ after(() => {
   server.close();
 });
 
-function requestAccess(body: unknown) {
+function requestAccess(body: unknown, apiKey: string | null = API_KEY) {
+  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  if (apiKey !== null) headers["X-API-Key"] = apiKey;
   return fetch(baseUrl + "/api/access-events", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers,
     body: JSON.stringify(body),
   });
 }
@@ -130,6 +135,22 @@ describe("POST /api/access-events", () => {
       body: "{ questo non è json",
     });
     assert.equal(res.status, 400);
+  });
+});
+
+describe("chiave del lettore badge (T10)", () => {
+  test("senza X-API-Key: 401 e nessuna riga nello storico", async () => {
+    const before = (await (await fetch(baseUrl + "/api/access-events")).json()).length;
+    const res = await requestAccess({ badge_code: "BADGE-OK", door_code: "VARCO-LAB" }, null);
+    assert.equal(res.status, 401);
+    assert.ok((await res.json()).error);
+    const after = (await (await fetch(baseUrl + "/api/access-events")).json()).length;
+    assert.equal(after, before);
+  });
+
+  test("con una X-API-Key sbagliata: 401", async () => {
+    const res = await requestAccess({ badge_code: "BADGE-OK", door_code: "VARCO-LAB" }, "chiave-sbagliata");
+    assert.equal(res.status, 401);
   });
 });
 
