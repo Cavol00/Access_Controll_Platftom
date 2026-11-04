@@ -10,8 +10,10 @@
 Qui sono documentati solo gli endpoint che esistono e rispondono. Il codice
 che li implementa è in `src/controllers/`, i test in `tests/`.
 
-`POST /api/access-events` richiede la chiave del lettore badge (T10). La
-protezione delle altre rotte con il login e i ruoli arriva con T07.
+**Autenticazione:** `POST /api/access-events` richiede la chiave del lettore
+badge (T10); `GET /api/access-events` richiede il login di un operatore con
+ruolo `admin_sicurezza` (T06, T07). Il responsabile di area arriverà con T18,
+insieme al filtro sulle sue aree.
 
 ## Convenzioni generali
 
@@ -91,13 +93,22 @@ Motivazioni possibili in `reason`: `autorizzazione valida`, `badge sconosciuto`,
 
 ### `GET /api/access-events`
 
-Restituisce lo storico dei tentativi di accesso, dal più recente.
+Restituisce lo storico dei tentativi di accesso, dal più recente. Solo per
+operatori con ruolo `admin_sicurezza`.
+
+**Parametri**
+
+| Nome | In | Tipo | Obbligatorio | Descrizione |
+|---|---|---|---|---|
+| `Authorization` | header | testo | sì | `Bearer <token>`, con il token ricevuto da `POST /api/auth/login` |
 
 **Risposte**
 
 | Status | Quando | Corpo (esempio) |
 |---|---|---|
 | `200 OK` | sempre, anche con storico vuoto | `[ { "id": 2, "badge_code": "BADGE-TEST-006", "result": "ACCESS_DENIED", ... }, { "id": 1, ... } ]` |
+| `401 Unauthorized` | token mancante, inventato o scaduto | `{ "error": "login richiesto" }` |
+| `403 Forbidden` | token valido, ma il ruolo non è `admin_sicurezza` | `{ "error": "Operazione non permessa al tuo ruolo" }` |
 | `500 Internal Server Error` | database non disponibile | `{ "error": "Errore interno del server" }` |
 
 Lo storico non si modifica: `PUT`, `PATCH` e `DELETE` su `/api/access-events`
@@ -118,6 +129,9 @@ Si lanciano con `npm test`.
   storico", "con una X-API-Key sbagliata: 401"
 - `GET /api/access-events` → "N richieste producono N righe nuove nello
   storico", "se il database non è disponibile … risponde 500"
+- Ruoli sullo storico (T07) → "senza login: 401", "con un token inventato: 401",
+  "con un ruolo non ammesso (admin_tecnico): 403", "con il ruolo giusto
+  (admin_sicurezza): 200"
 - Storico non modificabile → "PUT e DELETE sull'API rispondono 404", "anche dal
   database UPDATE e DELETE vengono rifiutati"
 - Regole di decisione, senza HTTP né database → `tests/accessDecision.test.ts`
