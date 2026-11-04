@@ -20,3 +20,9 @@ export interface ReportInput {
   result: AccessResult;
   reason: string;
 }
+
+/** Esito calcolato dal server, con la motivazione da registrare. */
+export interface Decision {
+  result: AccessResult;
+  reason: string;
+}
