@@ -12,7 +12,7 @@ export interface Report {
   reason: string;
 }
 
-/** Dati accettati in creazione (POST) e sostituzione (PUT). */
+/** Dati accettati in creazione (POST). */
 export interface ReportInput {
   badge_id: number | null;
   door_id: number | null;

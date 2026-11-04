@@ -93,32 +93,22 @@ describe("GET /api/segnalazioni", () => {
   });
 });
 
-describe("PUT /api/segnalazioni/:id", () => {
-  test("su un evento esistente risponde 200 con i dati aggiornati", async () => {
+describe("lo storico non è modificabile", () => {
+  test("PUT /api/segnalazioni/:id non esiste e risponde 404", async () => {
     const created = await (await sendJson("POST", "/api/segnalazioni", {
       result: "ACCESS_DENIED",
       reason: "motivo iniziale",
     })).json();
 
     const res = await sendJson("PUT", `/api/segnalazioni/${created.id}`, {
-      result: "ACCESS_DENIED",
-      reason: "motivo aggiornato",
-    });
-    assert.equal(res.status, 200);
-    assert.equal((await res.json()).reason, "motivo aggiornato");
-  });
-
-  test("su un id inesistente risponde 404", async () => {
-    const res = await sendJson("PUT", "/api/segnalazioni/999999", {
-      result: "ACCESS_DENIED",
-      reason: "non esiste",
+      result: "ACCESS_GRANTED",
+      reason: "tentativo di modifica",
     });
     assert.equal(res.status, 404);
-  });
 
-  test("con dati non validi risponde 400", async () => {
-    const res = await sendJson("PUT", "/api/segnalazioni/1", { result: "ACCESS_GRANTED" });
-    assert.equal(res.status, 400);
+    const rows = await (await fetch(baseUrl + "/api/segnalazioni")).json();
+    const row = rows.find((r: { id: number }) => r.id === created.id);
+    assert.equal(row.result, "ACCESS_DENIED");
   });
 });
 

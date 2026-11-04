@@ -27,11 +27,3 @@ reportsRouter.post("/", (req, res, next) => {
     next(error);
   }
 });
-
-reportsRouter.put("/:id", (req, res, next) => {
-  try {
-    res.json(reportsService.updateReport(req.params.id, req.body));
-  } catch (error) {
-    next(error);
-  }
-});

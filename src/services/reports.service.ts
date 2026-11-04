@@ -22,13 +22,7 @@ export function createReport(body: unknown): Report {
   return reports.create(parseInput(body));
 }
 
-export function updateReport(id: number | string, body: unknown): Report {
-  const report = reports.update(id, parseInput(body));
-  if (!report) throw new NotFoundError("Segnalazione non trovata");
-  return report;
-}
-
-/** Valida il corpo di POST/PUT e lo normalizza in `ReportInput`. */
+/** Valida il corpo della POST e lo normalizza in `ReportInput`. */
 function parseInput(body: unknown): ReportInput {
   const source = (typeof body === "object" && body !== null ? body : {}) as Record<string, unknown>;
   const { result, reason, badge_id, door_id, requested_at } = source;

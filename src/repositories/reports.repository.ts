@@ -29,20 +29,6 @@ export function create(input: ReportInput): Report {
   return findById(created.lastInsertRowid as number) as Report;
 }
 
-/** Aggiorna la segnalazione; ritorna `undefined` se l'id non esiste. */
-export function update(id: number | string, input: ReportInput): Report | undefined {
-  const updated = db
-    .prepare(
-      `UPDATE reports
-       SET badge_id = ?, door_id = ?, requested_at = COALESCE(?, requested_at), result = ?, reason = ?
-       WHERE id = ?`,
-    )
-    .run(input.badge_id, input.door_id, input.requested_at, input.result, input.reason, id);
-
-  if (updated.changes === 0) return undefined;
-  return findById(id);
-}
-
 /** Verifica dell'esistenza di una chiave esterna: badge. */
 export function badgeExists(id: number): boolean {
   return db.prepare("SELECT 1 FROM badges WHERE id = ?").get(id) !== undefined;
