@@ -2,10 +2,10 @@
 
 | | |
 |---|---|
-| **Team** | *(nome team — da definire)* — Dario D'Alessandro, Nicolò Florean, Gianmarco Tonelli |
+| **Team** | LeCucciole — Dario D'Alessandro, Nicolò Florean, Gianmarco Tonelli |
 | **Cliente** | Aurea Precision Components S.p.A. |
-| **Data** | 23/09/2026 |
-| **Versione** | v1 |
+| **Data** | 04/11/2026 (prima versione 23/09/2026) |
+| **Versione** | v2 — rivista sul sistema reale |
 
 ## Problema
 
@@ -39,23 +39,19 @@ ricostruire a posteriori chi ha tentato di accedere dove e quando.
 | RF7 | Un responsabile di area può consultare lo storico degli accessi solo per le aree di propria competenza |
 | RF8 | Il sistema evidenzia nello storico i tentativi negati o anomali |
 | RF9 | Una modifica a un'autorizzazione si applica alle richieste di accesso successive, senza alterare le richieste già registrate |
-| RF10 | Un responsabile di area può associare e revocare autorizzazioni tra un badge e le aree di propria competenza (non su altre aree) — *funzionalità richiesta esplicitamente dal cliente dopo la prima consegna, vedi `domande-cliente.md` #6* |
+| RF10 | Un responsabile di area può associare e revocare autorizzazioni tra un badge e le aree di propria competenza (non su altre aree) — *richiesta dal cliente nella risposta alla domanda #6 del 23/09/2026, vedi `domande-cliente.md`* |
 
 ## Requisiti non funzionali
 
 | # | Requisito |
 |---|---|
-| RNF1 | La valutazione di una richiesta di accesso restituisce un esito entro **5 secondi** *(soglia confermata dal cliente — vedi `domande-cliente.md` #1)*, indipendentemente dal numero di regole configurate |
+| RNF1 | La valutazione di una richiesta di accesso restituisce un esito entro **5 secondi** *(soglia confermata dal cliente il 23/09/2026 — vedi `domande-cliente.md` #1; il test che la verifica è previsto in T16)*, indipendentemente dal numero di regole configurate |
 | RNF2 | Le regole di autorizzazione sono separate dall'interfaccia utente e modificabili senza intervenire sul codice sorgente |
 | RNF3 | Ogni operatore (amministratore sicurezza, amministratore tecnico) accede al sistema tramite autenticazione; le operazioni disponibili dipendono dal ruolo |
 | RNF4 | Nessun secret o credenziale è presente nel codice sorgente |
 | RNF5 | Le modifiche ai permessi sono tracciate in un audit log distinto dai log applicativi |
 | RNF6 | Nessuna funzione basata su intelligenza artificiale può concedere o negare autonomamente un accesso: la decisione resta completamente deterministica e basata sulle regole configurate |
 | RNF7 | L'architettura può evolvere verso più sedi ed edifici e più varchi senza richiedere un ridisegno dei componenti |
-
-<span style="color:#888"><i>✗ "Il sistema deve essere sicuro" — ✓ "Nessuna
-funzione AI può autorizzare un accesso: la decisione di GRANTED/DENIED
-dipende solo dalle regole configurate, verificabile per ogni richiesta"</i></span>
 
 ## Vincoli dichiarati dal cliente
 
@@ -72,7 +68,7 @@ dipende solo dalle regole configurate, verificabile per ogni richiesta"</i></spa
 
 *Deliverable #1 della richiesta cliente ("documento dei requisiti e modello
 delle autorizzazioni"): come si relazionano le entità del glossario. Rispecchia
-esattamente lo schema del database (`src/db/schema.sql`) — un badge non
+lo schema del database (`schema.sql`) — un badge non
 autorizza direttamente su un varco, ma su un'area; è il varco a determinare
 su quale area si sta chiedendo accesso. Un dipendente ha esattamente un
 badge (confermato dal cliente, vedi `domande-cliente.md` #3); lo stesso badge

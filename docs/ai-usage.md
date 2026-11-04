@@ -4,6 +4,96 @@ Ogni uso significativo dell'AI va registrato qui da chi lo ha fatto: cosa ha
 chiesto, cosa ha ottenuto, come lo ha verificato, cosa ha tenuto o corretto.
 Un caso senza verifica descritta non conta.
 
+## Caso 1 — Bozze dei documenti della lezione 1
+
+**Data**: 23/09/2026 — **Chi**: Gianmarco Tonelli
+
+**Cosa abbiamo chiesto**: di generare, a partire dalla traccia del cliente e dai
+template del corso, una bozza di requirements, use-cases, architecture-v1,
+backlog e domande-cliente, scrivendo direttamente il testo invece di guidarci
+passo passo.
+
+**Cosa abbiamo ottenuto**: i cinque documenti. Nella stessa sessione l'AI ha
+generato anche un'applicazione completa di esempio (backend, simulatore, console,
+seed dei dati), che non abbiamo usato e che non è mai entrata nel repository
+(Caso 2). I documenti descrivevano quell'applicazione: per questo citavano
+`src/db/schema.sql`, `tests/api.test.ts`, la tabella `area_managers`, gli
+endpoint `/api/authorizations` e un seed con `BADGE-TEST-001`, che nel nostro
+codice non esistono.
+
+**Errore nostro**: li abbiamo committati in `docs/progetto-scolastico-main/`
+senza confrontarli con il nostro codice e senza tracciarli qui. Lo ha segnalato
+il docente nel riscontro del 15/10/2026.
+
+**Cosa abbiamo verificato e come** (dopo il riscontro):
+- ogni documento è stato riletto dal suo responsabile contro la traccia del
+  cliente e il codice di `main`: requirements Gianmarco, use-cases e backlog
+  Nicolò, architecture-v1 e domande-cliente Dario
+- ricerca con `grep` in `docs/` di tutti i riferimenti a file, tabelle ed
+  endpoint inesistenti: nessun risultato dopo le correzioni
+- ogni documento corretto è passato da una PR approvata da un altro membro
+
+**Cosa abbiamo tenuto o corretto, e perché**:
+- requirements (Gianmarco): tenuti obiettivi, requisiti funzionali e non
+  funzionali, perché corrispondono alla traccia punto per punto; corretti il
+  team e la versione, il percorso dello schema (`schema.sql`, non
+  `src/db/schema.sql`) e la nota di RF10, che parlava di una richiesta "dopo la
+  prima consegna" mentre è la risposta del cliente alla domanda #6 del
+  23/09/2026; tolto un esempio rimasto dal template del corso
+- use-cases (Nicolò): *(da completare nella sua PR)*
+- backlog (Nicolò): portato in `docs/backlog.md` con l'autenticazione a
+  priorità alta (PR #48)
+- architecture-v1 e domande-cliente (Dario): *(da completare nella sua PR)*
+
+**Dati sensibili nei prompt**: nessuno; la traccia è un caso di studio del corso.
+
+## Caso 2 — Applicazione di esempio generata e scartata
+
+**Data**: 23/09/2026 — **Chi**: Gianmarco Tonelli
+
+**Cosa abbiamo chiesto**: di implementare l'intera applicazione descritta nei
+documenti del Caso 1.
+
+**Cosa abbiamo ottenuto**: un'applicazione completa (backend, simulatore,
+console web, test), rimasta solo sul computer di Gianmarco.
+
+**Cosa abbiamo verificato e come**: l'abbiamo avviata e provata in locale, ma
+abbiamo deciso di non usarla: il codice del repository lo abbiamo costruito noi,
+lezione per lezione, a partire dal commit `0f0b438` del 30/09/2026.
+
+**Cosa abbiamo tenuto o corretto, e perché**: niente di quel codice è nel
+repository, perché il corso chiede di costruire e saper motivare ogni scelta
+passo per passo. Ne erano rimaste tracce solo nei documenti della lezione 1,
+corrette come descritto nel Caso 1.
+
+**Dati sensibili nei prompt**: nessuno.
+
+## Caso 3 — Risposte del cliente integrate nei documenti
+
+**Data**: 23/09/2026 — **Chi**: Gianmarco Tonelli
+
+**Cosa abbiamo chiesto**: il 23/09/2026 il cliente (il docente) ha risposto alle
+domande 1, 3, 4 e 6 di `domande-cliente.md`. Abbiamo chiesto all'AI di
+aggiornare i documenti di conseguenza.
+
+**Cosa abbiamo ottenuto**: RNF1 con la soglia di 5 secondi (domanda #1); un
+badge per dipendente (domanda #3); un badge autorizzabile su più aree (domanda
+#4); RF10 e UC6, il responsabile di area che consulta e modifica le
+autorizzazioni della propria area (domanda #6); la tabella delle risposte in
+`domande-cliente.md`.
+
+**Cosa abbiamo verificato e come**: le quattro risposte corrispondono a quelle
+date dal docente il 23/09/2026, compresa la #6, che è una sua risposta e non una
+nostra proposta.
+
+**Cosa abbiamo tenuto o corretto, e perché**: tenute le risposte e i requisiti
+che ne derivano. La colonna "Cosa è cambiato nel progetto" di
+`domande-cliente.md` citava file dell'applicazione del Caso 2: la riscrive Dario
+sui file reali. In RF10 la frase "dopo la prima consegna" era sbagliata ed è
+stata corretta.
+
+**Dati sensibili nei prompt**: nessuno.
+
 ## Caso 4 — Test automatici delle API (laboratorio 4, punto 4)
 
 **Data**: 14/10/2026
