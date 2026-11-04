@@ -55,7 +55,8 @@ INSERT INTO employees (id, name, email, active) VALUES
   (3, 'Luca Verdi',     'luca.verdi@aurea.example',     1),
   (4, 'Anna Neri',      'anna.neri@aurea.example',      1),
   (5, 'Paolo Gialli',   'paolo.gialli@aurea.example',   1),
-  (6, 'Ex Dipendente',  'ex.dipendente@aurea.example',  0);
+  (6, 'Ex Dipendente',  'ex.dipendente@aurea.example',  0),
+  (7, 'Dipendente Sospeso', 'dipendente.sospeso@aurea.example', 0);
 
 -- -----------------------------------------------------------------------------
 -- 5. badges — Badge (id, codice unico, dipendente UNIVOCO, attivo 0/1)
@@ -67,7 +68,8 @@ INSERT INTO badges (id, code, employee_id, active) VALUES
   (3, 'BADGE-TEST-003', 3, 1),
   (4, 'BADGE-TEST-004', 4, 1),
   (5, 'BADGE-TEST-005', 5, 1),
-  (6, 'BADGE-TEST-006', 6, 0);
+  (6, 'BADGE-TEST-006', 6, 0),
+  (7, 'BADGE-TEST-007', 7, 1);   -- badge attivo, ma il dipendente non lo è più
 
 -- -----------------------------------------------------------------------------
 -- 6. authorizations — Autorizzazioni (badge -> area).
@@ -83,7 +85,8 @@ INSERT INTO authorizations (badge_id, area_id, valid_from, valid_to, revoked_at)
   (3, 6, NULL, NULL, NULL),                          -- Verdi: anche Officina
   (4, 4, '2026-01-01T00:00:00Z', '2026-12-31T23:59:59Z', NULL),  -- Neri: Sala Sistemi (a tempo)
   (4, 5, NULL, NULL, NULL),                          -- Neri: Uffici Amministrativi
-  (5, 6, NULL, NULL, '2026-09-01T00:00:00Z');        -- Gialli: Officina, REVOCATA
+  (5, 6, NULL, NULL, '2026-09-01T00:00:00Z'),        -- Gialli: Officina, REVOCATA
+  (7, 1, NULL, NULL, NULL);                          -- Sospeso: Uffici (ma il dipendente non è attivo)
 
 -- -----------------------------------------------------------------------------
 -- 7. access_events — Storico accessi: qui NON si inserisce niente a mano.

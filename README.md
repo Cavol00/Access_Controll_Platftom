@@ -75,6 +75,8 @@ Altri comandi:
 ```bash
 npm test                 # test automatici (database in memoria, non tocca data/)
 npm run typecheck        # controllo dei tipi su src/ e tests/, senza generare file
+npm run simulate         # con il backend avviato: il simulatore del lettore badge
+                         # manda gli scenari di simulator/scenari.json e stampa gli esiti
 ```
 
 Verifica rapida: con il backend avviato, `curl http://localhost:3000/health`
@@ -102,6 +104,7 @@ deve rispondere `{"status":"ok"}`. Le API sono descritte in
 │   ├── domain/           motore di decisione degli accessi (funzione pura)
 │   ├── middleware/       controlli prima delle rotte (chiave del lettore badge)
 │   └── repositories/     unico punto che contiene SQL
+├── simulator/            simulatore del lettore badge (scenari in scenari.json)
 ├── tests/                test automatici
 └── docs/                 requisiti, casi d'uso, architettura, backlog,
                           modello dati, API, uso dell'AI

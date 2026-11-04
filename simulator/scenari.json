@@ -1,0 +1,72 @@
+[
+  {
+    "descrizione": "Rossi entra negli Uffici, dove è autorizzato",
+    "badge_code": "BADGE-TEST-001",
+    "door_code": "VARCO-UFF-NORD",
+    "requested_at": "2026-11-04T09:00:00Z",
+    "atteso": "ACCESS_GRANTED"
+  },
+  {
+    "descrizione": "Rossi entra in Laboratorio dal secondo varco dell'area",
+    "badge_code": "BADGE-TEST-001",
+    "door_code": "VARCO-LAB-02",
+    "requested_at": "2026-11-04T09:05:00Z",
+    "atteso": "ACCESS_GRANTED"
+  },
+  {
+    "descrizione": "Neri entra in Sala Sistemi dentro il periodo di validità",
+    "badge_code": "BADGE-TEST-004",
+    "door_code": "VARCO-SALA-SISTEMI",
+    "requested_at": "2026-11-04T09:10:00Z",
+    "atteso": "ACCESS_GRANTED"
+  },
+  {
+    "descrizione": "Bianchi prova gli Uffici, ma è autorizzata solo in Laboratorio",
+    "badge_code": "BADGE-TEST-002",
+    "door_code": "VARCO-UFF-NORD",
+    "requested_at": "2026-11-04T09:15:00Z",
+    "atteso": "ACCESS_DENIED"
+  },
+  {
+    "descrizione": "Neri prova la Sala Sistemi dopo la scadenza dell'autorizzazione",
+    "badge_code": "BADGE-TEST-004",
+    "door_code": "VARCO-SALA-SISTEMI",
+    "requested_at": "2027-01-05T10:00:00Z",
+    "atteso": "ACCESS_DENIED"
+  },
+  {
+    "descrizione": "Gialli prova l'Officina, ma l'autorizzazione è stata revocata",
+    "badge_code": "BADGE-TEST-005",
+    "door_code": "VARCO-OFFICINA",
+    "requested_at": "2026-11-04T09:20:00Z",
+    "atteso": "ACCESS_DENIED"
+  },
+  {
+    "descrizione": "Un badge disattivato prova gli Uffici",
+    "badge_code": "BADGE-TEST-006",
+    "door_code": "VARCO-UFF-NORD",
+    "requested_at": "2026-11-04T09:25:00Z",
+    "atteso": "ACCESS_DENIED"
+  },
+  {
+    "descrizione": "Badge attivo di un dipendente non più attivo prova gli Uffici",
+    "badge_code": "BADGE-TEST-007",
+    "door_code": "VARCO-UFF-NORD",
+    "requested_at": "2026-11-04T09:30:00Z",
+    "atteso": "ACCESS_DENIED"
+  },
+  {
+    "descrizione": "Un badge che non esiste prova il Laboratorio",
+    "badge_code": "BADGE-INESISTENTE",
+    "door_code": "VARCO-LAB-01",
+    "requested_at": "2026-11-04T09:35:00Z",
+    "atteso": "ACCESS_DENIED"
+  },
+  {
+    "descrizione": "Rossi passa da un varco che non esiste",
+    "badge_code": "BADGE-TEST-001",
+    "door_code": "VARCO-INESISTENTE",
+    "requested_at": "2026-11-04T09:40:00Z",
+    "atteso": "ACCESS_DENIED"
+  }
+]
