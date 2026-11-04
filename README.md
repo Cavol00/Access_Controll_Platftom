@@ -58,7 +58,8 @@ L'azienda chiede una piattaforma centralizzata che:
 
 ```bash
 npm install
-cp .env.example .env     # una volta sola: .env non è nel repository
+cp .env.example .env     # una volta sola: .env non è nel repository;
+                         # poi in .env cambiate SIMULATOR_API_KEY con una chiave casuale
 npm run dev              # avvia il backend direttamente dal TypeScript
 ```
 
@@ -99,6 +100,7 @@ deve rispondere `{"status":"ok"}`. Le API sono descritte in
 │   ├── controllers/      traduzione HTTP ↔ servizio
 │   ├── services/         regole e validazione
 │   ├── domain/           motore di decisione degli accessi (funzione pura)
+│   ├── middleware/       controlli prima delle rotte (chiave del lettore badge)
 │   └── repositories/     unico punto che contiene SQL
 ├── tests/                test automatici
 └── docs/                 requisiti, casi d'uso, architettura, backlog,

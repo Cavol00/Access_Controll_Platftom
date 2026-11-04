@@ -1,6 +1,7 @@
 /**
  * Errori applicativi, distinti per responsabilità:
  * - `ValidationError` → l'input non va bene (400);
+ * - `UnauthorizedError` → manca una credenziale valida (401);
  * - `NotFoundError`   → la risorsa richiesta non esiste (404).
  *
  * Ogni errore porta con sé lo status HTTP, così il controller non deve
@@ -20,6 +21,12 @@ export class AppError extends Error {
 export class ValidationError extends AppError {
   constructor(message = "Dati della richiesta non validi") {
     super(400, message);
+  }
+}
+
+export class UnauthorizedError extends AppError {
+  constructor(message = "Credenziali mancanti o non valide") {
+    super(401, message);
   }
 }
 
