@@ -235,3 +235,32 @@ login (T06/T07); una richiesta senza chiave non viene registrata nello storico,
 perché non arriva da un lettore badge e quindi non è un tentativo di accesso.
 
 **Dati sensibili nei prompt**: nessuno; la chiave vera sta solo nel nostro .env.
+
+## Caso N — Simulatore del lettore badge (T11)
+
+**Data**: 04/11/2026 — **Chi**: Gianmarco Tonelli
+
+**Cosa abbiamo chiesto**: un simulatore separato dal backend che legga gli
+scenari da un file, li mandi all'API con la chiave del lettore e gestisca il
+backend spento senza bloccarsi (T11).
+
+**Cosa abbiamo ottenuto**: simulator/simulate.ts e simulator/scenari.json con 10
+scenari (3 concessi, 7 negati: uno per ogni motivo di rifiuto), il comando
+npm run simulate, un dipendente sospeso in dati_db_test.sql per lo scenario
+"dipendente non attivo".
+
+**Cosa abbiamo verificato e come**:
+- con il backend acceso e i dati di prova: Esiti come attesi 10/10
+- con il backend spento: messaggio "backend non raggiungibile", varco lasciato
+  chiuso, il simulatore si ferma
+- con una chiave sbagliata: messaggio "chiave rifiutata (401)"
+- controprova: cambiato l'esito atteso del primo scenario, il simulatore lo ha
+  segnato con ✗ e ha dato 9/10; ripristinato, 10/10
+
+**Cosa abbiamo tenuto o corretto, e perché**: gli orari negli scenari sono fissi,
+così l'esito non cambia con la data della demo; il simulatore usa il backend
+solo via HTTP, così i lettori reali potranno sostituirlo senza toccare il
+backend (RNF7); oltre 5 secondi senza risposta il varco resta chiuso
+(fail-closed, RNF1).
+
+**Dati sensibili nei prompt**: nessuno.
