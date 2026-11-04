@@ -83,7 +83,7 @@ erDiagram
   AREA ||--o{ DOOR : ha
   BADGE ||--o{ AUTHORIZATION : concede
   AREA ||--o{ AUTHORIZATION : riguarda
-  BADGE ||--o{ ACCESS_EVENT : genera
+  AREA |o--o{ ACCESS_EVENT : registra
 
   EMPLOYEE {
     string name
@@ -108,6 +108,8 @@ erDiagram
     datetime revoked_at "nullo finché non revocata"
   }
   ACCESS_EVENT {
+    string badge_code "anche se il badge non esiste"
+    string door_code "anche se il varco non esiste"
     datetime requested_at
     string result "ACCESS_GRANTED o ACCESS_DENIED"
     string reason

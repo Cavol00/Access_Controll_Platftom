@@ -98,6 +98,7 @@ deve rispondere `{"status":"ok"}`. Le API sono descritte in
 │   ├── db.ts             apre il database e applica schema.sql
 │   ├── controllers/      traduzione HTTP ↔ servizio
 │   ├── services/         regole e validazione
+│   ├── domain/           motore di decisione degli accessi (funzione pura)
 │   └── repositories/     unico punto che contiene SQL
 ├── tests/                test automatici
 └── docs/                 requisiti, casi d'uso, architettura, backlog,

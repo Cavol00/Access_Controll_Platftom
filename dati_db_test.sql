@@ -5,7 +5,7 @@
 -- Da incollare in DB Browser for SQLite -> scheda "Execute SQL" -> play (F5).
 --
 -- Ordine importante: prima le tabelle "padre" (buildings, employees), poi quelle
--- che le referenziano (areas, doors, badges, authorizations, reports).
+-- che le referenziano (areas, doors, badges, authorizations).
 --
 -- Nota: gli `id` sono indicati esplicitamente per poterli referenziare tra le
 -- tabelle. Se nel database hai già righe con questi stessi id, compare un
@@ -86,28 +86,11 @@ INSERT INTO authorizations (badge_id, area_id, valid_from, valid_to, revoked_at)
   (5, 6, NULL, NULL, '2026-09-01T00:00:00Z');        -- Gialli: Officina, REVOCATA
 
 -- -----------------------------------------------------------------------------
--- 7. reports — Segnalazioni (storico tentativi di accesso).
---    badge_id / door_id possono essere NULL (es. badge o varco sconosciuto).
---    result ammette solo 'ACCESS_GRANTED' o 'ACCESS_DENIED'.
---    requested_at in ISO 8601.
+-- 7. access_events — Storico accessi: qui NON si inserisce niente a mano.
+--    Lo storico lo scrive solo il server, quando valuta una richiesta
+--    (POST /api/access-events). Per generare eventi di prova usate le
+--    richieste di esempio in docs/api.md.
 -- -----------------------------------------------------------------------------
-INSERT INTO reports (badge_id, door_id, requested_at, result, reason) VALUES
-  (1, 1,    '2026-10-14T08:00:00Z', 'ACCESS_GRANTED', 'Badge autorizzato su Uffici'),
-  (2, 1,    '2026-10-14T08:05:00Z', 'ACCESS_DENIED',  'Nessuna autorizzazione su Uffici'),
-  (1, 2,    '2026-10-14T08:10:00Z', 'ACCESS_GRANTED', 'Badge autorizzato su Laboratorio'),
-  (3, 2,    '2026-10-14T08:15:00Z', 'ACCESS_DENIED',  'Nessuna autorizzazione su Laboratorio'),
-  (3, 3,    '2026-10-14T08:20:00Z', 'ACCESS_GRANTED', 'Badge autorizzato su Magazzino'),
-  (6, 1,    '2026-10-14T08:25:00Z', 'ACCESS_DENIED',  'Badge disattivato'),
-  (4, 4,    '2026-10-14T09:00:00Z', 'ACCESS_GRANTED', 'Autorizzazione valida su Sala Sistemi'),
-  (4, 1,    '2026-10-14T09:05:00Z', 'ACCESS_DENIED',  'Nessuna autorizzazione su Uffici'),
-  (5, 6,    '2026-10-14T09:10:00Z', 'ACCESS_DENIED',  'Autorizzazione revocata'),
-  (NULL, NULL, '2026-10-14T09:15:00Z', 'ACCESS_DENIED', 'Badge sconosciuto'),
-  (1, NULL, '2026-10-14T09:20:00Z', 'ACCESS_DENIED',  'Varco non specificato'),
-  (2, 2,    '2026-10-14T12:30:00Z', 'ACCESS_GRANTED', 'Accesso in orario di lavoro'),
-  (2, 2,    '2026-10-14T23:30:00Z', 'ACCESS_DENIED',  'Fuori fascia oraria'),
-  (4, 4,    '2027-01-05T10:00:00Z', 'ACCESS_DENIED',  'Autorizzazione scaduta');
-
-COMMIT;
 
 -- =============================================================================
 -- VARIANTE SENZA id ESPLICITI

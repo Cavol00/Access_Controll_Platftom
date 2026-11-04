@@ -2,21 +2,27 @@ export const ACCESS_RESULTS = ["ACCESS_GRANTED", "ACCESS_DENIED"] as const;
 
 export type AccessResult = (typeof ACCESS_RESULTS)[number];
 
-/** Segnalazione come la espone l'API (DTO). */
-export interface Report {
+/** Riga dello storico come la espone l'API (DTO). */
+export interface AccessEvent {
   id: number;
-  badge_id: number | null;
-  door_id: number | null;
+  badge_code: string;
+  door_code: string;
+  area_id: number | null;
   requested_at: string;
   result: AccessResult;
   reason: string;
+  recorded_at: string;
 }
 
-/** Dati accettati in creazione (POST). */
-export interface ReportInput {
-  badge_id: number | null;
-  door_id: number | null;
-  requested_at: string | null;
+/** Quello che il lettore badge invia: solo badge, varco e, se vuole, l'orario. */
+export interface AccessRequest {
+  badge_code: string;
+  door_code: string;
+  requested_at: Date;
+}
+
+/** Esito calcolato dal server, con la motivazione da registrare. */
+export interface Decision {
   result: AccessResult;
   reason: string;
 }
