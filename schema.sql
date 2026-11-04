@@ -42,11 +42,30 @@ CREATE TABLE IF NOT EXISTS authorizations (
   UNIQUE (badge_id, area_id)
 );
 
-CREATE TABLE IF NOT EXISTS reports (
+-- Storico dei tentativi di accesso. Badge e varco sono salvati come codici
+-- (testo), non come chiavi esterne: anche un badge o un varco sconosciuto deve
+-- lasciare una riga, e una chiave esterna lo impedirebbe.
+CREATE TABLE IF NOT EXISTS access_events (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  badge_id INTEGER REFERENCES badges(id),
-  door_id INTEGER REFERENCES doors(id),
-  requested_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  badge_code TEXT NOT NULL,
+  door_code TEXT NOT NULL,
+  area_id INTEGER REFERENCES areas(id),
+  requested_at TEXT NOT NULL,
   result TEXT NOT NULL CHECK (result IN ('ACCESS_GRANTED', 'ACCESS_DENIED')),
-  reason TEXT NOT NULL
+  reason TEXT NOT NULL,
+  recorded_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Lo storico non si modifica e non si cancella, nemmeno con una query scritta
+-- a mano: il database stesso rifiuta UPDATE e DELETE.
+CREATE TRIGGER IF NOT EXISTS access_events_no_update
+BEFORE UPDATE ON access_events
+BEGIN
+  SELECT RAISE(ABORT, 'lo storico degli accessi non è modificabile');
+END;
+
+CREATE TRIGGER IF NOT EXISTS access_events_no_delete
+BEFORE DELETE ON access_events
+BEGIN
+  SELECT RAISE(ABORT, 'lo storico degli accessi non è modificabile');
+END;

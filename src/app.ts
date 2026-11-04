@@ -1,5 +1,5 @@
 import express, { type ErrorRequestHandler } from "express";
-import { reportsRouter } from "./controllers/reports.controller.js";
+import { accessEventsRouter } from "./controllers/accessEvents.controller.js";
 import { AppError } from "./errors.js";
 
 /**
@@ -13,7 +13,7 @@ app.get("/health", (_req, res) => {
   res.json({ status: "ok" });
 });
 
-app.use("/api/segnalazioni", reportsRouter);
+app.use("/api/access-events", accessEventsRouter);
 
 /**
  * Un errore applicativo diventa il suo status; un JSON malformato è un 400;
