@@ -146,3 +146,37 @@ buttato. app.ts invece è rimasto quello della PR, con i router e il ramo
 SyntaxError, senza il quale un corpo non JSON diventerebbe un 500.
 
 **Dati sensibili nei prompt**: nessuno.
+
+## Caso 6 — Esito calcolato dal server e storico non modificabile
+
+**Data**: 04/11/2026 — **Chi**: Gianmarco Tonelli
+
+**Cosa abbiamo chiesto**: come correggere la POST che riceveva l'esito dal
+client (riscontro del docente del 15/10/2026: "l'esito lo calcola il server"),
+mantenendo i livelli controller / servizio / repository della PR #1.
+
+**Cosa abbiamo ottenuto**: tabella `access_events` con i codici di badge e
+varco come testo e due trigger che rifiutano UPDATE e DELETE; motore di
+decisione come funzione pura in `src/domain/accessDecision.ts`; due repository,
+un servizio e un controller per `/api/access-events`; 24 test; `docs/api.md`
+compilato sul template del corso; diagramma dei requisiti aggiornato.
+
+**Cosa abbiamo verificato e come**:
+- `npm test`: 24/24; `npx tsc --noEmit`: nessun errore
+- controprova: commentata la regola "badge disattivato" nel motore, il test
+  unitario corrispondente è fallito; ripristinata, tutti i test sono tornati
+  verdi
+- prova manuale con `curl` sui dati di `dati_db_test.sql`: BADGE-TEST-001 su
+  VARCO-LAB-01 riceve ACCESS_GRANTED; un badge inesistente con
+  `"result": "ACCESS_GRANTED"` nel corpo riceve ACCESS_DENIED, "badge
+  sconosciuto": l'esito inviato dal client è ignorato
+
+**Cosa abbiamo tenuto o corretto, e perché**: abbiamo tenuto i codici di badge
+e varco come testo nello storico, invece di chiavi esterne, perché anche un
+badge o un varco sconosciuto deve lasciare una riga (voce 2 del backlog).
+Abbiamo deciso che un accesso negato risponda 201 e non 403: la richiesta è
+valida ed è stato creato un evento; il 403 vorrebbe dire che il client non può
+chiamare l'API. Abbiamo messo le regole in una funzione pura separata, così si
+testano senza database e la stessa richiesta dà sempre lo stesso esito.
+
+**Dati sensibili nei prompt**: nessuno.
