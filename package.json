@@ -7,7 +7,8 @@
     "build": "tsc -p tsconfig.build.json",
     "start": "node --env-file-if-exists=.env dist/server.js",
     "test": "node --import tsx --test \"tests/**/*.test.ts\"",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "crea-operatore": "tsx --env-file-if-exists=.env scripts/crea-operatore.ts"
   },
   "dependencies": {
     "express": "^5.1.0"
