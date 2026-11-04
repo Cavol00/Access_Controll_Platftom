@@ -6,3 +6,4 @@ data/*.sqlite-*
 
 # materiale delle lezioni (PDF): non fa parte del progetto
 *.pdf
+/guida-nicolo.md
