@@ -15,6 +15,11 @@ app.get("/health", (_req, res) => {
 
 app.use("/api/access-events", accessEventsRouter);
 
+// Nessuna rotta corrisponde: 404 in JSON, come tutti gli altri errori.
+app.use((_req, res) => {
+  res.status(404).json({ error: "Risorsa non trovata" });
+});
+
 /**
  * Un errore applicativo diventa il suo status; un JSON malformato è un 400;
  * qualunque altro errore è un 500, senza dettagli interni nella risposta.
