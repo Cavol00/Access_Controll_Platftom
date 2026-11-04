@@ -40,7 +40,11 @@ il docente nel riscontro del 15/10/2026.
   `src/db/schema.sql`) e la nota di RF10, che parlava di una richiesta "dopo la
   prima consegna" mentre è la risposta del cliente alla domanda #6 del
   23/09/2026; tolto un esempio rimasto dal template del corso
-- use-cases (Nicolò): *(da completare nella sua PR)*
+- use-cases (Nicolò): ho riallineato `docs/use-cases.md` al sistema reale, con
+  team e data corretti, UC1 allineato a `POST /api/access-events` e alla
+  registrazione dei tentativi con badge o varco sconosciuti, stati aggiunti a
+  tutti gli UC, attività future indicate con issue/T e la nota di UC6 ricondotta
+  alla risposta del cliente alla domanda #6.
 - backlog (Nicolò): portato in `docs/backlog.md` con l'autenticazione a
   priorità alta (PR #48)
 - architecture-v1 e domande-cliente (Dario): *(da completare nella sua PR)*
@@ -181,7 +185,32 @@ testano senza database e la stessa richiesta dà sempre lo stesso esito.
 
 **Dati sensibili nei prompt**: nessuno.
 
-## Caso 7 — Chiave del lettore badge (T10)
+## Caso 7 — Registro delle modifiche alle autorizzazioni
+
+**Data**: 04/11/2026 — **Chi**: Nicolò Florean
+
+**Cosa abbiamo chiesto**: come prevedere un registro immutabile delle modifiche
+alle autorizzazioni prima degli endpoint che le creano e le revocano.
+
+**Cosa abbiamo ottenuto**: la tabella `authorization_changes`, con azione
+`CREATED`/`REVOKED`, autore obbligatorio e timestamp del database, due trigger
+che rifiutano UPDATE e DELETE, cinque test e l'aggiornamento del modello dati.
+
+**Cosa abbiamo verificato e come**:
+- il test di baseline ha superato 24 test; dopo l'aggiunta, `npm test` ha
+  superato 29 test, inclusi i cinque test del registro;
+- `npm run typecheck`, `npm run build` e `git diff --check` sono terminati senza
+  errori;
+- nella controprova controllata, rimossi temporaneamente i trigger, il test di
+  immutabilità è fallito; i trigger sono stati ripristinati prima del commit.
+
+**Cosa abbiamo tenuto o corretto, e perché**: `changed_by` resta testo perché
+gli operatori e il login non esistono ancora; quando arriverà l'autenticazione
+potrà essere collegato all'identità dell'operatore senza anticipare T06.
+
+**Dati sensibili nei prompt**: nessuno.
+
+## Caso 8 — Chiave del lettore badge (T10)
 
 **Data**: 04/11/2026 — **Chi**: Gianmarco Tonelli
 
