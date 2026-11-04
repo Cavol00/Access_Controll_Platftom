@@ -26,6 +26,7 @@ Entità
 | Badge | id (intero), codice (testo, unico), dipendente_id (unico), attivo (sì/no) | → Dipendente, uno a uno · ← molte Autorizzazioni |
 | Autorizzazione | id (intero), badge_id, area_id, valida_dal (data/ora), valida_fino (data/ora, facoltativa), revocata_il (data/ora, facoltativa), creata_il (data/ora) | → Badge · → Area |
 | EventoAccesso | id (intero), codice_badge (testo), codice_varco (testo), area_id (facoltativo), richiesto_il (data/ora), esito (ACCESS_GRANTED/ACCESS_DENIED), motivazione (testo), registrato_il (data/ora) | → Area, se il varco esisteva |
+| ModificaAutorizzazione | id (intero), autorizzazione_id, azione (CREATED/REVOKED), fatta_da (testo), fatta_il (data/ora) | → Autorizzazione |
 
 → = "riferisce", ← = "è referenziata da".
 Sostantivi scartati
@@ -61,7 +62,6 @@ Per ora è un'annotazione: l'autorizzazione vera arriva più avanti nel corso.
 Entità previste, non ancora nello schema
 Operatore (chi usa la console: username, password cifrata, ruolo) e
 l'associazione con le aree di cui è responsabile.
-VoceAudit (chi ha cambiato quale permesso e quando).
 
 Entrano nello schema quando si costruiscono autenticazione e permessi.
 ## Schema delle tabelle.
@@ -72,6 +72,7 @@ erDiagram
   badge ||--o{ autorizzazioni : riceve
   aree ||--o{ autorizzazioni : riguarda
   aree |o--o{ eventi_accesso : registra
+  autorizzazioni ||--o{ modifiche_autorizzazioni : registra
 
 ```
 CREATE TABLE edifici (
