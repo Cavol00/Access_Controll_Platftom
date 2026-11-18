@@ -13,6 +13,12 @@ import { statusRouter } from "./controllers/status.controller.js";
 export const app = express();
 app.use(express.json());
 
+// Console web (#67): i file di public/ sono serviti dallo stesso server delle
+// API, così la pagina chiama /api/... senza configurare CORS. Il percorso è
+// relativo alla cartella da cui si lancia npm (la radice del repo), come
+// schema.sql in db.ts: vale sia per `npm run dev` sia per `npm start`.
+app.use(express.static("public"));
+
 app.get("/health", (_req, res) => {
   res.json({ status: "ok" });
 });

@@ -164,7 +164,21 @@ con un altro ruolo `403`.
 Un'area che compare nello storico non si elimina: lo storico resta com'è. Un
 varco invece si può eliminare, perché lo storico ne conserva il codice come testo.
 
+## Console web
+
+`GET /` (e i file `/app.js`, `/style.css`) restituisce la console web in
+`public/`, servita dallo stesso server con `express.static`: stessa origine
+delle API, quindi niente CORS. La pagina usa solo gli endpoint documentati
+sopra: `POST /api/auth/login` e poi `GET /api/access-events` con l'header
+`Authorization: Bearer <token>`. Mostra all'operatore `credenziali non valide`
+(401 al login), la sessione scaduta (401 sullo storico, torna al login) e il
+ruolo non ammesso (403).
+
 ## Test collegati
+
+- Console web (#67) → `tests/console.test.ts` › la pagina HTML con il form di
+  login, script e foglio di stile serviti, 401 sullo storico senza login, 404
+  JSON sulle rotte inesistenti
 
 Si lanciano con `npm test`.
 
