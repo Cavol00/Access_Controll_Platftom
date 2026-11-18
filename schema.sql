@@ -90,3 +90,13 @@ BEFORE DELETE ON authorization_changes
 BEGIN
   SELECT RAISE(ABORT, 'il registro delle modifiche non è modificabile');
 END;
+
+-- Operatori della console (T06). La password non è mai salvata in chiaro:
+-- password_hash contiene "scrypt$<sale>$<hash>", calcolato da src/auth/passwords.ts.
+CREATE TABLE IF NOT EXISTS operators (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  username TEXT NOT NULL UNIQUE,
+  password_hash TEXT NOT NULL,
+  role TEXT NOT NULL CHECK (role IN ('admin_sicurezza', 'admin_tecnico', 'responsabile_area')),
+  active INTEGER NOT NULL DEFAULT 1 CHECK (active IN (0, 1))
+);

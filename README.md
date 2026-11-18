@@ -77,6 +77,7 @@ npm test                 # test automatici (database in memoria, non tocca data/
 npm run typecheck        # controllo dei tipi su src/ e tests/, senza generare file
 npm run simulate         # con il backend avviato: il simulatore del lettore badge
                          # manda gli scenari di simulator/scenari.json e stampa gli esiti
+npm run crea-operatore -- <username> <ruolo>   # crea un operatore di prova (chiede la password)
 ```
 
 Verifica rapida: con il backend avviato, `curl http://localhost:3000/health`
@@ -99,11 +100,13 @@ deve rispondere `{"status":"ok"}`. Le API sono descritte in
 │   ├── app.ts            monta le rotte e il gestore degli errori
 │   ├── config.ts         legge la configurazione da variabili d'ambiente
 │   ├── db.ts             apre il database e applica schema.sql
+│   ├── auth/             hash delle password e sessioni degli operatori
 │   ├── controllers/      traduzione HTTP ↔ servizio
 │   ├── services/         regole e validazione
 │   ├── domain/           motore di decisione degli accessi (funzione pura)
 │   ├── middleware/       controlli prima delle rotte (chiave del lettore badge)
 │   └── repositories/     unico punto che contiene SQL
+├── scripts/              comandi di servizio (crea-operatore)
 ├── simulator/            simulatore del lettore badge (scenari in scenari.json)
 ├── tests/                test automatici
 └── docs/                 requisiti, casi d'uso, architettura, backlog,

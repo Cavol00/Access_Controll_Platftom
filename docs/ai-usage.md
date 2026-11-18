@@ -236,7 +236,63 @@ perché non arriva da un lettore badge e quindi non è un tentativo di accesso.
 
 **Dati sensibili nei prompt**: nessuno; la chiave vera sta solo nel nostro .env.
 
-## Caso N — Simulatore del lettore badge (T11)
+## Caso 9 — Login degli operatori (T06)
+
+**Data**: 04/11/2026 — **Chi**: Nicolò Florean
+
+**Cosa abbiamo chiesto**: come aggiungere il login degli operatori senza
+salvare password in chiaro e senza librerie esterne.
+
+**Cosa abbiamo ottenuto**: tabella `operators` con hash scrypt e ruolo, sessioni
+in memoria con token casuali, `POST /api/auth/login`, il comando
+`npm run crea-operatore` e cinque test dedicati.
+
+**Cosa abbiamo verificato e come**:
+- `npm test`, `npm run typecheck`, `npm run build` e `git diff --check`;
+- prova controllata del comando di creazione e del login, inclusi i due 401
+  indistinguibili per password errata e utente inesistente;
+- controprova rimuovendo temporaneamente la verifica della password: il test
+  della password errata è fallito, poi il codice è stato ripristinato.
+
+**Cosa abbiamo tenuto o corretto, e perché**: le sessioni restano in memoria,
+come deciso nel modello dati, così non persistono token utilizzabili; il
+messaggio unico per gli errori di autenticazione evita di rivelare quali
+username esistono.
+
+**Dati sensibili nei prompt**: nessuno; solo password di prova inventate.
+
+## Caso 10 — Controllo dei ruoli (T07)
+
+**Data**: 04/11/2026 — **Chi**: Nicolò Florean
+
+**Cosa abbiamo chiesto**: come proteggere lo storico con il login della T06 e i
+ruoli, distinguendo chi non è autenticato (401) da chi non ha il ruolo (403).
+
+**Cosa abbiamo ottenuto**: il middleware `requireRole`, `ForbiddenError` (403),
+la GET dello storico riservata a `admin_sicurezza`, quattro test nuovi e i test
+esistenti aggiornati per fare il login. La POST resta protetta solo dalla
+chiave del lettore badge.
+
+**Cosa abbiamo verificato e come**:
+- il baseline `npm test` era 36/36; dopo le modifiche `npm run typecheck`,
+  `npm test` (40/40) e `npm run build` sono terminati senza errori;
+- prova manuale controllata con database temporaneo e password inventate:
+  GET senza token → 401, login admin con token di 64 caratteri e GET → 200,
+  login tecnico e GET → 403;
+- controprova: rimosso temporaneamente solo `requireRole("admin_sicurezza")`
+  dalla GET, sono falliti i tre test T07 di 401/403 (37 passati, 3 falliti);
+  ripristinato il file e rieseguiti i test con 40/40;
+- `git diff --check` non ha segnalato errori.
+
+**Cosa abbiamo tenuto o corretto, e perché**: `responsabile_area` non è ancora
+ammesso perché vede solo le proprie aree; la T18 aggiungerà il filtro prima di
+abilitarlo allo storico. Il token resta in memoria e i dati manuali erano
+temporanei.
+
+**Dati sensibili nei prompt**: nessuno; solo password, token e database
+temporanei inventati, senza chiavi reali.
+
+## Caso 11 — Simulatore del lettore badge (T11)
 
 **Data**: 04/11/2026 — **Chi**: Gianmarco Tonelli
 

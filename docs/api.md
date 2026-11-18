@@ -10,10 +10,10 @@
 Qui sono documentati solo gli endpoint che esistono e rispondono. Il codice
 che li implementa è in `src/controllers/`, i test in `tests/`.
 
-> **Non ancora pronto:** il login degli operatori non c'è ancora (voce 3 del
-> backlog, a priorità alta, issue T06 e T07): `GET /api/access-events` oggi è
-> aperto. `POST /api/access-events` invece richiede già la chiave del lettore
-> badge (T10).
+**Autenticazione:** `POST /api/access-events` richiede la chiave del lettore
+badge (T10); `GET /api/access-events` richiede il login di un operatore con
+ruolo `admin_sicurezza` (T06, T07). Il responsabile di area arriverà con T18,
+insieme al filtro sulle sue aree.
 
 ## Convenzioni generali
 
@@ -25,6 +25,24 @@ registrata, quindi risponde `201` con `"result": "ACCESS_DENIED"`. Date e
 orari sono stringhe ISO 8601 in UTC (es. `2026-10-15T08:00:00.000Z`).
 
 ## Endpoint
+
+### `POST /api/auth/login`
+
+Effettua il login di un operatore attivo. Il token restituito vale 8 ore; le
+sessioni sono mantenute solo in memoria e dopo un riavvio è necessario rifare il
+login. Gli operatori si creano con `npm run crea-operatore`.
+
+**Corpo della richiesta**
+
+```json
+{ "username": "admin.sicurezza", "password": "password-di-prova" }
+```
+
+| Status | Quando | Corpo |
+|---|---|---|
+| `200 OK` | credenziali corrette | `{ "token": "9f3c...", "username": "admin.sicurezza", "role": "admin_sicurezza", "expires_at": "2026-11-04T18:00:00.000Z" }` |
+| `400 Bad Request` | username o password mancanti | `{ "error": "username e password sono obbligatori" }` |
+| `401 Unauthorized` | utente inesistente, password errata o operatore inattivo | `{ "error": "credenziali non valide" }` |
 
 ### `GET /health`
 
@@ -75,13 +93,22 @@ Motivazioni possibili in `reason`: `autorizzazione valida`, `badge sconosciuto`,
 
 ### `GET /api/access-events`
 
-Restituisce lo storico dei tentativi di accesso, dal più recente.
+Restituisce lo storico dei tentativi di accesso, dal più recente. Solo per
+operatori con ruolo `admin_sicurezza`.
+
+**Parametri**
+
+| Nome | In | Tipo | Obbligatorio | Descrizione |
+|---|---|---|---|---|
+| `Authorization` | header | testo | sì | `Bearer <token>`, con il token ricevuto da `POST /api/auth/login` |
 
 **Risposte**
 
 | Status | Quando | Corpo (esempio) |
 |---|---|---|
 | `200 OK` | sempre, anche con storico vuoto | `[ { "id": 2, "badge_code": "BADGE-TEST-006", "result": "ACCESS_DENIED", ... }, { "id": 1, ... } ]` |
+| `401 Unauthorized` | token mancante, inventato o scaduto | `{ "error": "login richiesto" }` |
+| `403 Forbidden` | token valido, ma il ruolo non è `admin_sicurezza` | `{ "error": "Operazione non permessa al tuo ruolo" }` |
 | `500 Internal Server Error` | database non disponibile | `{ "error": "Errore interno del server" }` |
 
 Lo storico non si modifica: `PUT`, `PATCH` e `DELETE` su `/api/access-events`
@@ -102,6 +129,9 @@ Si lanciano con `npm test`.
   storico", "con una X-API-Key sbagliata: 401"
 - `GET /api/access-events` → "N richieste producono N righe nuove nello
   storico", "se il database non è disponibile … risponde 500"
+- Ruoli sullo storico (T07) → "senza login: 401", "con un token inventato: 401",
+  "con un ruolo non ammesso (admin_tecnico): 403", "con il ruolo giusto
+  (admin_sicurezza): 200"
 - Storico non modificabile → "PUT e DELETE sull'API rispondono 404", "anche dal
   database UPDATE e DELETE vengono rifiutati"
 - Regole di decisione, senza HTTP né database → `tests/accessDecision.test.ts`

@@ -2,6 +2,10 @@ export const ACCESS_RESULTS = ["ACCESS_GRANTED", "ACCESS_DENIED"] as const;
 
 export type AccessResult = (typeof ACCESS_RESULTS)[number];
 
+export const ROLES = ["admin_sicurezza", "admin_tecnico", "responsabile_area"] as const;
+
+export type Role = (typeof ROLES)[number];
+
 /** Riga dello storico come la espone l'API (DTO). */
 export interface AccessEvent {
   id: number;
