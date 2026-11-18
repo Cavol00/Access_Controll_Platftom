@@ -3,7 +3,8 @@
  * - `ValidationError` → l'input non va bene (400);
  * - `UnauthorizedError` → manca una credenziale valida (401);
  * - `ForbiddenError` → la credenziale c'è ma il ruolo non basta (403);
- * - `NotFoundError`   → la risorsa richiesta non esiste (404).
+ * - `NotFoundError`   → la risorsa richiesta non esiste (404);
+ * - `ConflictError`   → la richiesta è valida ma contrasta con i dati esistenti (409).
  *
  * Ogni errore porta con sé lo status HTTP, così il controller non deve
  * indovinarlo e l'errore non viene mai ingoiato in silenzio.
@@ -40,5 +41,11 @@ export class ForbiddenError extends AppError {
 export class NotFoundError extends AppError {
   constructor(message = "Risorsa non trovata") {
     super(404, message);
+  }
+}
+
+export class ConflictError extends AppError {
+  constructor(message = "La richiesta è in conflitto con i dati esistenti") {
+    super(409, message);
   }
 }

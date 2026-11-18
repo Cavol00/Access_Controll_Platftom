@@ -44,6 +44,18 @@ login. Gli operatori si creano con `npm run crea-operatore`.
 | `400 Bad Request` | username o password mancanti | `{ "error": "username e password sono obbligatori" }` |
 | `401 Unauthorized` | utente inesistente, password errata o operatore inattivo | `{ "error": "credenziali non valide" }` |
 
+### Autorizzazioni (T12)
+
+Un badge viene autorizzato su un'area. Richiede il login con ruolo
+`admin_sicurezza` (header `Authorization: Bearer <token>`): senza login `401`,
+con un altro ruolo `403`. Ogni creazione scrive nel registro delle modifiche
+(`authorization_changes`) chi l'ha fatta e quando, nella stessa transazione.
+
+| Metodo e percorso | Corpo | Successo | Errori |
+|---|---|---|---|
+| `GET /api/authorizations` | — | `200` lista | — |
+| `POST /api/authorizations` | `{ "badge_id": 1, "area_id": 2, "valid_from": "2026-01-01T00:00:00Z", "valid_to": "2026-12-31T23:59:59Z" }` (le date sono facoltative) | `201` autorizzazione creata | `400` badge o area inesistenti, date non valide o fine prima dell'inizio · `409` il badge ha già un'autorizzazione su quell'area |
+
 ### `GET /health`
 
 Dice se il backend è attivo. Serve all'amministratore tecnico e alla verifica
@@ -119,6 +131,10 @@ Anche il database rifiuta `UPDATE` e `DELETE` sulla tabella `access_events`.
 
 Si lanciano con `npm test`.
 
+- Autorizzazioni (T12) → `tests/authorizations.test.ts` › badge su due aree
+ concesso su entrambe, negato dopo la data di fine, registro delle modifiche
+ con autore e data, coppia duplicata 409, badge inesistente 400 senza righe
+ nel registro, date invertite 400, elenco, 401 e 403
 - `GET /health` → `tests/access-events.test.ts` › "risponde 200 con status ok"
 - `POST /api/access-events` → `tests/access-events.test.ts` › "badge autorizzato
   sull'area del varco: 201 e ACCESS_GRANTED", "stesso badge su un varco di
