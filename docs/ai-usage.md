@@ -291,3 +291,26 @@ temporanei.
 
 **Dati sensibili nei prompt**: nessuno; solo password, token e database
 temporanei inventati, senza chiavi reali.
+
+## Caso 11 — Creazione delle autorizzazioni (T12)
+
+**Data**: 18/11/2026 — **Chi**: Nicolò Florean
+
+**Cosa abbiamo chiesto**: implementare `POST /api/authorizations` (solo `admin_sicurezza`) per autorizzare un badge su un'area con date di inizio/fine facoltative, `GET /api/authorizations` per l'elenco, e registrare ogni creazione nel registro `authorization_changes` con autore e timestamp nella stessa transazione.
+
+**Cosa abbiamo ottenuto**: `ConflictError` (409), repository `createWithChange` con transazione `BEGIN/COMMIT/ROLLBACK`, servizio con validazione date e controllo duplicati, controller protetto da `requireRole("admin_sicurezza")`, 8 test nuovi, documentazione in `docs/api.md`.
+
+**Cosa abbiamo verificato e come**:
+- `npx tsc --noEmit` → 0 errori; `npm test` → **48/48 pass**, 0 fail (baseline 40/40 + 8 T12).
+- Controprova: commentata la riga di insert in `authorization_changes` → il test "il registro delle modifiche riporta chi ha creato l'autorizzazione e quando" fallisce (`0 !== 3` righe); ripristinato → 48/48.
+- Prova manuale con database temporaneo e curl:
+  - `POST /api/authorizations` senza token → **401**
+  - con token `admin_sicurezza` → **201**, corpo con `id`, `badge_id`, `area_id`
+  - duplicato stesso badge+area → **409**
+  - richiesta simulatore su quel varco → **ACCESS_GRANTED** con reason "autorizzazione valida"
+  - `authorization_changes` → 1 riga `CREATED` con `changed_by="admin.manuale"` e timestamp
+- `git diff --check` non ha segnalato errori.
+
+**Cosa abbiamo tenuto o corretto, e perché**: la transazione garantisce atomicità: se l'insert nel registro fallisse dopo l'autorizzazione, avremmo un permesso senza traccia di chi l'ha dato; con `ROLLBACK` succedono tutte e due o nessuna. `changed_by` proviene dalla sessione (`res.locals.operator.username` messo da `requireRole`), non dal client → non falsificabile. `ConflictError` 409 per coppia badge-area già autorizzata (stesso messaggio che Dario userà in T08, nessuna collisione git provata a unire i due branch).
+
+**Dati sensibili nei prompt**: nessuno; solo password, token e database temporanei inventati, senza chiavi reali.
