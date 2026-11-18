@@ -1,6 +1,7 @@
 import express, { type ErrorRequestHandler } from "express";
 import { accessEventsRouter } from "./controllers/accessEvents.controller.js";
 import { authRouter } from "./controllers/auth.controller.js";
+import { authorizationsRouter } from "./controllers/authorizations.controller.js";
 import { AppError } from "./errors.js";
 import { statusRouter } from "./controllers/status.controller.js";
 
@@ -18,6 +19,7 @@ app.use("/api/status", statusRouter);
 
 app.use("/api/access-events", accessEventsRouter);
 app.use("/api/auth", authRouter);
+app.use("/api/authorizations", authorizationsRouter);
 
 // Nessuna rotta corrisponde: 404 in JSON, come tutti gli altri errori.
 app.use((_req, res) => {
