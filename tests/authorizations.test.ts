@@ -69,6 +69,13 @@ async function access(badge_code: string, door_code: string, requested_at?: stri
   return (await res.json()).result as string;
 }
 
+function revoke(id: number | string, token: string = adminToken) {
+  return fetch(`${baseUrl}/api/authorizations/${id}/revoke`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
 describe("creare autorizzazioni (T12)", () => {
   test("un badge autorizzato su due aree riceve ACCESS_GRANTED sui varchi di entrambe", async () => {
     assert.equal(await access("BADGE-A", "VARCO-LAB"), "ACCESS_DENIED");
@@ -130,5 +137,61 @@ describe("creare autorizzazioni (T12)", () => {
   test("senza login: 401; con un ruolo non ammesso: 403", async () => {
     assert.equal((await fetch(baseUrl + "/api/authorizations")).status, 401);
     assert.equal((await authorize({ badge_id: 2, area_id: 2 }, tecnicoToken)).status, 403);
+  });
+});
+
+describe("revocare autorizzazioni (T13)", () => {
+  test("dopo la revoca l'accesso è negato, lo storico precedente resta identico e il registro riporta chi e quando", async () => {
+    const storicoPrima = db.prepare("SELECT * FROM access_events ORDER BY id").all();
+
+    const res = await revoke(1);
+    assert.equal(res.status, 200);
+    assert.ok(((await res.json()) as { revoked_at: string | null }).revoked_at);
+
+    assert.equal(await access("BADGE-A", "VARCO-LAB"), "ACCESS_DENIED");
+    assert.equal(await access("BADGE-A", "VARCO-MAG"), "ACCESS_GRANTED");
+
+    const storicoDopo = db.prepare("SELECT * FROM access_events ORDER BY id").all() as unknown[];
+    assert.deepEqual(storicoDopo.slice(0, storicoPrima.length), storicoPrima);
+    assert.equal(storicoDopo.length, storicoPrima.length + 2);
+
+    const changesRes = await fetch(baseUrl + "/api/authorizations/changes", {
+      headers: { Authorization: `Bearer ${adminToken}` },
+    });
+    assert.equal(changesRes.status, 200);
+    const changes = (await changesRes.json()) as {
+      authorization_id: number; action: string; changed_by: string; changed_at: string;
+    }[];
+    const revoca = changes.find((change) => change.action === "REVOKED");
+    assert.deepEqual(
+      {
+        authorization_id: revoca?.authorization_id,
+        action: revoca?.action,
+        changed_by: revoca?.changed_by,
+      },
+      { authorization_id: 1, action: "REVOKED", changed_by: "admin.prova" },
+    );
+    assert.ok(revoca?.changed_at);
+
+    const elenco = (await (await fetch(baseUrl + "/api/authorizations", {
+      headers: { Authorization: `Bearer ${adminToken}` },
+    })).json()) as { id: number; revoked_at: string | null }[];
+    assert.equal(elenco.length, 3);
+    assert.ok(elenco.find((authorization) => authorization.id === 1)?.revoked_at);
+  });
+
+  test("revoca due volte: 409; autorizzazione inesistente: 404; id non valido: 400", async () => {
+    assert.equal((await revoke(1)).status, 409);
+    assert.equal((await revoke(999)).status, 404);
+    assert.equal((await revoke("abc")).status, 400);
+  });
+
+  test("registro e revoca senza login: 401; con ruolo non ammesso: 403", async () => {
+    assert.equal((await fetch(baseUrl + "/api/authorizations/changes")).status, 401);
+    assert.equal((await fetch(baseUrl + "/api/authorizations/changes", {
+      headers: { Authorization: `Bearer ${tecnicoToken}` },
+    })).status, 403);
+    assert.equal((await revoke(2, tecnicoToken)).status, 403);
+    assert.equal((await revoke(2, "")).status, 401);
   });
 });

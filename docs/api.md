@@ -46,15 +46,18 @@ login. Gli operatori si creano con `npm run crea-operatore`.
 
 ### Autorizzazioni (T12)
 
-Un badge viene autorizzato su un'area. Richiede il login con ruolo
-`admin_sicurezza` (header `Authorization: Bearer <token>`): senza login `401`,
-con un altro ruolo `403`. Ogni creazione scrive nel registro delle modifiche
+Un badge viene autorizzato su un'area e l'autorizzazione può essere revocata
+senza cancellarla. Richiede il login con ruolo `admin_sicurezza` (header
+`Authorization: Bearer <token>`): senza login `401`, con un altro ruolo `403`.
+Ogni creazione e ogni revoca scrivono nel registro delle modifiche
 (`authorization_changes`) chi l'ha fatta e quando, nella stessa transazione.
 
 | Metodo e percorso | Corpo | Successo | Errori |
 |---|---|---|---|
-| `GET /api/authorizations` | — | `200` lista | — |
+| `GET /api/authorizations` | — | `200` lista (anche quelle revocate) | — |
 | `POST /api/authorizations` | `{ "badge_id": 1, "area_id": 2, "valid_from": "2026-01-01T00:00:00Z", "valid_to": "2026-12-31T23:59:59Z" }` (le date sono facoltative) | `201` autorizzazione creata | `400` badge o area inesistenti, date non valide o fine prima dell'inizio · `409` il badge ha già un'autorizzazione su quell'area |
+| `POST /api/authorizations/:id/revoke` | — | `200` autorizzazione con `revoked_at`; la richiesta successiva riceve `ACCESS_DENIED` | `400` id non valido · `404` autorizzazione inesistente · `409` già revocata |
+| `GET /api/authorizations/changes` | — | `200` registro: `authorization_id`, `action` (`CREATED`/`REVOKED`), `changed_by`, `changed_at` | — |
 
 ### `GET /health`
 
@@ -166,9 +169,13 @@ varco invece si può eliminare, perché lo storico ne conserva il codice come te
 Si lanciano con `npm test`.
 
 - Autorizzazioni (T12) → `tests/authorizations.test.ts` › badge su due aree
- concesso su entrambe, negato dopo la data di fine, registro delle modifiche
- con autore e data, coppia duplicata 409, badge inesistente 400 senza righe
- nel registro, date invertite 400, elenco, 401 e 403
+  concesso su entrambe, negato dopo la data di fine, registro delle modifiche
+  con autore e data, coppia duplicata 409, badge inesistente 400 senza righe
+  nel registro, date invertite 400, elenco, 401 e 403
+- Revoca delle autorizzazioni (T13) → `tests/authorizations.test.ts` › prima
+  richiesta dopo la revoca negata, storico precedente identico, registro con
+  chi ha revocato quale autorizzazione e quando, 409/404/400, 401 e 403
+
 - `GET /health` → `tests/access-events.test.ts` › "risponde 200 con status ok"
 - `POST /api/access-events` → `tests/access-events.test.ts` › "badge autorizzato
   sull'area del varco: 201 e ACCESS_GRANTED", "stesso badge su un varco di
