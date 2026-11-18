@@ -345,7 +345,29 @@ producono 30 righe, UPDATE e DELETE rifiutati senza modificare lo storico.
 
 **Dati sensibili nei prompt**: nessuno.
 
-## Caso 13 — Creazione delle autorizzazioni (T12)
+## Caso 13 — Stato del sistema (T17)
+
+**Data**: 18/11/2026 — **Chi**: Gianmarco Tonelli
+
+**Cosa abbiamo chiesto**: lo stato dettagliato del sistema della T17: riservato
+agli amministratori, con lo stato del database e l'ora dell'ultimo evento
+ricevuto dal simulatore, mentre /health resta pubblico.
+
+**Cosa abbiamo ottenuto**: GET /api/status con requireRole per admin_tecnico e
+admin_sicurezza; repository con SELECT 1 e MAX(recorded_at); servizio che, se
+il database non risponde, lo dice invece di andare in errore; 6 test; la
+sezione in docs/api.md.
+
+**Cosa abbiamo verificato e come**:
+- npm test 50/50; npx tsc --noEmit senza errori
+- controprova: tolto requireRole dalla rotta, i test del 401 e del 403 sono
+  falliti; ripristinato, 50/50
+
+**Cosa abbiamo tenuto o corretto, e perché**: con il database spento la rotta risponde comunque 200 con "non raggiungibile" invece di un errore 500, perché è proprio il momento in cui l'amministratore tecnico ha bisogno di sapere cosa non funziona.
+
+**Dati sensibili nei prompt**: nessuno.
+
+## Caso 14 — Creazione delle autorizzazioni (T12)
 
 **Data**: 18/11/2026 — **Chi**: Nicolò Florean
 
@@ -364,6 +386,6 @@ producono 30 righe, UPDATE e DELETE rifiutati senza modificare lo storico.
   - `authorization_changes` → 1 riga `CREATED` con `changed_by="admin.manuale"` e timestamp
 - `git diff --check` non ha segnalato errori.
 
-**Cosa abbiamo tenuto o corretto, e perché**: la transazione garantisce atomicità: se l'insert nel registro fallisse dopo l'autorizzazione, avremmo un permesso senza traccia di chi l'ha dato; con `ROLLBACK` succedono tutte e due o nessuna. `changed_by` proviene dalla sessione (`res.locals.operator.username` messo da `requireRole`), non dal client → non falsificabile. `ConflictError` 409 per coppia badge-area già autorizzata (stesso messaggio che Dario userà in T08, nessuna collisione git provata a unire i due branch).
+**Cosa abbiamo tenuto o corretto, e perché**: la transazione garantisce atomicità: se l'insert nel registro fallisse dopo quello dell'autorizzazione, avremmo un permesso senza traccia di chi l'ha dato; con `BEGIN` / `ROLLBACK` succedono tutte e due o nessuna. `changed_by` proviene dalla sessione (`res.locals.operator.username` messo da `requireRole`), non dal client → non falsificabile. `ConflictError` 409 per coppia badge-area già autorizzata (stesso messaggio che Dario userà in T08, nessuna collisione git provata a unire i due branch).
 
 **Dati sensibili nei prompt**: nessuno; solo password, token e database temporanei inventati, senza chiavi reali.

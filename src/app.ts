@@ -3,6 +3,7 @@ import { accessEventsRouter } from "./controllers/accessEvents.controller.js";
 import { authRouter } from "./controllers/auth.controller.js";
 import { authorizationsRouter } from "./controllers/authorizations.controller.js";
 import { AppError } from "./errors.js";
+import { statusRouter } from "./controllers/status.controller.js";
 
 /**
  * Crea l'app: monta i router e il gestore degli errori centralizzato.
@@ -14,6 +15,7 @@ app.use(express.json());
 app.get("/health", (_req, res) => {
   res.json({ status: "ok" });
 });
+app.use("/api/status", statusRouter);
 
 app.use("/api/access-events", accessEventsRouter);
 app.use("/api/auth", authRouter);

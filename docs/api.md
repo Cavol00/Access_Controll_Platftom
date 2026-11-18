@@ -67,6 +67,19 @@ dopo l'avvio.
 |---|---|---|
 | `200 OK` | il backend risponde | `{ "status": "ok" }` |
 
+### `GET /api/status` (T17)
+
+Stato dettagliato del sistema, per l'amministratore tecnico: dice se il database
+risponde e quando è arrivato l'ultimo evento dal simulatore. Richiede il login con
+ruolo `admin_tecnico` o `admin_sicurezza`. Il controllo pubblico resta `GET /health`.
+
+| Status | Quando | Corpo (esempio) |
+|---|---|---|
+| `200 OK` | login con un ruolo ammesso | `{ "backend": "attivo", "database": "raggiungibile", "last_event_at": "2026-11-18 09:00:00", "checked_at": "2026-11-18T09:05:00.000Z" }` |
+| `200 OK` | il database non risponde | `{ "backend": "attivo", "database": "non raggiungibile", "last_event_at": null, ... }` |
+| `401 Unauthorized` | senza login | `{ "error": "login richiesto" }` |
+| `403 Forbidden` | ruolo non ammesso (es. `responsabile_area`) | `{ "error": "Operazione non permessa al tuo ruolo" }` |
+
 ### `POST /api/access-events`
 
 Il lettore badge (oggi il simulatore) chiede l'accesso indicando solo badge e
@@ -151,6 +164,9 @@ Si lanciano con `npm test`.
 - Storico non modificabile → "PUT e DELETE sull'API rispondono 404", "anche dal
   database UPDATE e DELETE vengono rifiutati"
 - Regole di decisione, senza HTTP né database → `tests/accessDecision.test.ts`
+- Stato del sistema (T17) → `tests/status.test.ts` › /health pubblico, 401 senza
+  login, 403 con ruolo non ammesso, database raggiungibile, ora dell'ultimo evento,
+  database non raggiungibile
 - Tempi e storico sotto carico (T16) → `tests/tempi.test.ts` › esito entro 5
   secondi, 50 richieste insieme entro 5 secondi, N richieste insieme → N righe,
   storico non modificabile
