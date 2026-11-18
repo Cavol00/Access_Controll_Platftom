@@ -140,6 +140,27 @@ Lo storico non si modifica: `PUT`, `PATCH` e `DELETE` su `/api/access-events`
 non esistono e rispondono `404` con `{ "error": "Risorsa non trovata" }`.
 Anche il database rifiuta `UPDATE` e `DELETE` sulla tabella `access_events`.
 
+### Edifici, aree e varchi (T08)
+
+Struttura fisica della sede. Tutte le rotte richiedono il login con ruolo
+`admin_sicurezza` (header `Authorization: Bearer <token>`): senza login `401`,
+con un altro ruolo `403`.
+
+| Metodo e percorso | Corpo | Successo | Errori |
+|---|---|---|---|
+| `GET /api/buildings` | — | `200` lista | — |
+| `POST /api/buildings` | `{ "name": "Sede Nord", "address": "Via Industriale 1" }` (`address` facoltativo) | `201` edificio creato | `400` senza `name` |
+| `DELETE /api/buildings/{id}` | — | `204` | `404` non esiste · `409` ha ancora aree |
+| `GET /api/areas` | — | `200` lista | — |
+| `POST /api/areas` | `{ "building_id": 1, "name": "Laboratorio" }` | `201` area creata | `400` senza `name` o edificio inesistente |
+| `DELETE /api/areas/{id}` | — | `204` | `404` non esiste · `409` ha varchi, autorizzazioni o eventi nello storico |
+| `GET /api/doors` | — | `200` lista | — |
+| `POST /api/doors` | `{ "area_id": 2, "code": "VARCO-LAB-03" }` | `201` varco creato | `400` area inesistente · `409` codice già usato |
+| `DELETE /api/doors/{id}` | — | `204` | `404` non esiste |
+
+Un'area che compare nello storico non si elimina: lo storico resta com'è. Un
+varco invece si può eliminare, perché lo storico ne conserva il codice come testo.
+
 ## Test collegati
 
 Si lanciano con `npm test`.
@@ -170,6 +191,11 @@ Si lanciano con `npm test`.
 - Tempi e storico sotto carico (T16) → `tests/tempi.test.ts` › esito entro 5
   secondi, 50 richieste insieme entro 5 secondi, N richieste insieme → N righe,
   storico non modificabile
+
+- Edifici, aree e varchi (T08) → `tests/structure.test.ts` › creazione, elenco,
+  varco su area inesistente 400, codice duplicato 409, varco nuovo valutato
+  dalle richieste di accesso, eliminazioni bloccate 409, eliminazioni 204,
+  401 senza login, 403 con un ruolo non ammesso
 
 ## Prova a mano
 

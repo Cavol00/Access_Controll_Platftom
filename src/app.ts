@@ -1,4 +1,5 @@
 import express, { type ErrorRequestHandler } from "express";
+import { structureRouter } from "./controllers/structure.controller.js";
 import { accessEventsRouter } from "./controllers/accessEvents.controller.js";
 import { authRouter } from "./controllers/auth.controller.js";
 import { authorizationsRouter } from "./controllers/authorizations.controller.js";
@@ -17,6 +18,7 @@ app.get("/health", (_req, res) => {
 });
 app.use("/api/status", statusRouter);
 
+app.use("/api", structureRouter);
 app.use("/api/access-events", accessEventsRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/authorizations", authorizationsRouter);
