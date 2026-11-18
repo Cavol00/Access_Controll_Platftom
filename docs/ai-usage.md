@@ -47,7 +47,9 @@ il docente nel riscontro del 15/10/2026.
   alla risposta del cliente alla domanda #6.
 - backlog (Nicolò): portato in `docs/backlog.md` con l'autenticazione a
   priorità alta (PR #48)
-- architecture-v1 e domande-cliente (Dario): *(da completare nella sua PR)*
+- architecture-v1 e domande-cliente (Dario): verifiche test 7 pass e 1 fail con la PUT presente,
+poi 8/8; curl -X PUT che risponde 404; il grep dei riferimenti inesistenti vuoto.
+
 
 **Dati sensibili nei prompt**: nessuno; la traccia è un caso di studio del corso.
 
