@@ -16,6 +16,9 @@ process.env.SIMULATOR_API_KEY = API_KEY;
 let server: Server;
 let baseUrl: string;
 let db: DatabaseSync;
+// Token degli operatori di prova, ottenuti con il login in before().
+let adminToken: string;
+let tecnicoToken: string;
 
 before(async () => {
   const { app } = await import("../src/app.js");
@@ -45,7 +48,29 @@ before(async () => {
   server = app.listen(0);
   await once(server, "listening");
   baseUrl = `http://localhost:${(server.address() as AddressInfo).port}`;
+
+  const { hashPassword } = await import("../src/auth/passwords.js");
+  const operators = await import("../src/repositories/operators.repository.js");
+  operators.create("admin.prova", hashPassword("password-di-prova"), "admin_sicurezza");
+  operators.create("tecnico.prova", hashPassword("password-di-prova"), "admin_tecnico");
+  adminToken = await loginAs("admin.prova");
+  tecnicoToken = await loginAs("tecnico.prova");
 });
+
+async function loginAs(username: string): Promise<string> {
+  const res = await fetch(baseUrl + "/api/auth/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username, password: "password-di-prova" }),
+  });
+  return (await res.json()).token;
+}
+
+function readEvents(token: string | null = adminToken) {
+  return fetch(baseUrl + "/api/access-events", {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+}
 
 after(() => {
   server.close();
@@ -140,11 +165,11 @@ describe("POST /api/access-events", () => {
 
 describe("chiave del lettore badge (T10)", () => {
   test("senza X-API-Key: 401 e nessuna riga nello storico", async () => {
-    const before = (await (await fetch(baseUrl + "/api/access-events")).json()).length;
+    const before = (await (await readEvents()).json()).length;
     const res = await requestAccess({ badge_code: "BADGE-OK", door_code: "VARCO-LAB" }, null);
     assert.equal(res.status, 401);
     assert.ok((await res.json()).error);
-    const after = (await (await fetch(baseUrl + "/api/access-events")).json()).length;
+    const after = (await (await readEvents()).json()).length;
     assert.equal(after, before);
   });
 
@@ -154,14 +179,36 @@ describe("chiave del lettore badge (T10)", () => {
   });
 });
 
+describe("ruoli sullo storico (T07)", () => {
+  test("senza login: 401", async () => {
+    const res = await readEvents(null);
+    assert.equal(res.status, 401);
+  });
+
+  test("con un token inventato: 401", async () => {
+    const res = await readEvents("token-inventato");
+    assert.equal(res.status, 401);
+  });
+
+  test("con un ruolo non ammesso (admin_tecnico): 403", async () => {
+    const res = await readEvents(tecnicoToken);
+    assert.equal(res.status, 403);
+  });
+
+  test("con il ruolo giusto (admin_sicurezza): 200", async () => {
+    const res = await readEvents(adminToken);
+    assert.equal(res.status, 200);
+  });
+});
+
 describe("GET /api/access-events", () => {
   test("N richieste producono N righe nuove nello storico", async () => {
-    const before = (await (await fetch(baseUrl + "/api/access-events")).json()).length;
+    const before = (await (await readEvents()).json()).length;
     await requestAccess({ badge_code: "BADGE-OK", door_code: "VARCO-LAB" });
     await requestAccess({ badge_code: "BADGE-OFF", door_code: "VARCO-LAB" });
     await requestAccess({ badge_code: "BADGE-OK", door_code: "VARCO-MAG" });
 
-    const res = await fetch(baseUrl + "/api/access-events");
+    const res = await readEvents();
     assert.equal(res.status, 200);
     assert.equal((await res.json()).length, before + 3);
   });
@@ -186,7 +233,7 @@ describe("lo storico non è modificabile", () => {
 describe("errore del server", () => {
   test("se il database non è disponibile GET /api/access-events risponde 500 senza dettagli interni", async () => {
     db.close();
-    const res = await fetch(baseUrl + "/api/access-events");
+    const res = await readEvents();
     assert.equal(res.status, 500);
     assert.deepEqual(await res.json(), { error: "Errore interno del server" });
   });
