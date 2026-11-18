@@ -151,6 +151,9 @@ Si lanciano con `npm test`.
 - Storico non modificabile → "PUT e DELETE sull'API rispondono 404", "anche dal
   database UPDATE e DELETE vengono rifiutati"
 - Regole di decisione, senza HTTP né database → `tests/accessDecision.test.ts`
+- Tempi e storico sotto carico (T16) → `tests/tempi.test.ts` › esito entro 5
+  secondi, 50 richieste insieme entro 5 secondi, N richieste insieme → N righe,
+  storico non modificabile
 
 ## Prova a mano
 

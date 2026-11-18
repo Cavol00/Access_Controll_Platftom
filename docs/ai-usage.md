@@ -47,7 +47,9 @@ il docente nel riscontro del 15/10/2026.
   alla risposta del cliente alla domanda #6.
 - backlog (Nicolò): portato in `docs/backlog.md` con l'autenticazione a
   priorità alta (PR #48)
-- architecture-v1 e domande-cliente (Dario): *(da completare nella sua PR)*
+- architecture-v1 e domande-cliente (Dario): verifiche test 7 pass e 1 fail con la PUT presente,
+poi 8/8; curl -X PUT che risponde 404; il grep dei riferimenti inesistenti vuoto.
+
 
 **Dati sensibili nei prompt**: nessuno; la traccia è un caso di studio del corso.
 
@@ -118,7 +120,7 @@ porta effimera.
 - controprova: abbiamo cambiato a mano un `assert.equal(res.status, 404)` in
   `405` e verificato che `npm test` fallisse, poi l'abbiamo rimesso
 
-**Cosa abbiamo tenuto o corretto, e perché**: *(da completare)*
+**Cosa abbiamo tenuto o corretto, e perché**: abbiamo tenuto la separazione tra app.ts e server.ts, così i test usano l'app senza occupare la porta 3000, e il database in memoria, così i test non toccano data/; i test delle segnalazioni li abbiamo poi sostituiti nel G3 con quelli di /api/access-events.
 
 **Dati sensibili nei prompt**: nessuno.
 
@@ -314,3 +316,53 @@ temporanei inventati, senza chiavi reali.
 **Cosa abbiamo tenuto o corretto, e perché**: la transazione garantisce atomicità: se l'insert nel registro fallisse dopo l'autorizzazione, avremmo un permesso senza traccia di chi l'ha dato; con `ROLLBACK` succedono tutte e due o nessuna. `changed_by` proviene dalla sessione (`res.locals.operator.username` messo da `requireRole`), non dal client → non falsificabile. `ConflictError` 409 per coppia badge-area già autorizzata (stesso messaggio che Dario userà in T08, nessuna collisione git provata a unire i due branch).
 
 **Dati sensibili nei prompt**: nessuno; solo password, token e database temporanei inventati, senza chiavi reali.
+
+## Caso 12 — Simulatore del lettore badge (T11)
+
+**Data**: 04/11/2026 — **Chi**: Gianmarco Tonelli
+
+**Cosa abbiamo chiesto**: un simulatore separato dal backend che legga gli
+scenari da un file, li mandi all'API con la chiave del lettore e gestisca il
+backend spento senza bloccarsi (T11).
+
+**Cosa abbiamo ottenuto**: simulator/simulate.ts e simulator/scenari.json con 10
+scenari (3 concessi, 7 negati: uno per ogni motivo di rifiuto), il comando
+npm run simulate, un dipendente sospeso in dati_db_test.sql per lo scenario
+"dipendente non attivo".
+
+**Cosa abbiamo verificato e come**:
+- con il backend acceso e i dati di prova: Esiti come attesi 10/10
+- con il backend spento: messaggio "backend non raggiungibile", varco lasciato
+  chiuso, il simulatore si ferma
+- con una chiave sbagliata: messaggio "chiave rifiutata (401)"
+- controprova: cambiato l'esito atteso del primo scenario, il simulatore lo ha
+  segnato con ✗ e ha dato 9/10; ripristinato, 10/10
+
+**Cosa abbiamo tenuto o corretto, e pourquoi**: gli orari negli scenari sono fissi,
+così l'esito non cambia con la data della demo; il simulatore usa il backend
+solo via HTTP, così i lettori reali potranno sostituirlo senza toccare il
+backend (RNF7); oltre 5 secondi senza risposta il varco resta chiuso
+(fail-closed, RNF1).
+
+**Dati sensibili nei prompt**: nessuno.
+
+## Caso 13 — Test dei tempi di risposta e dello storico sotto carico (T16)
+
+**Data**: 18/11/2026 — **Chi**: Gianmarco Tonelli
+
+**Cosa abbiamo chiesto**: i test della T16: risposta entro 5 secondi (RNF1),
+N richieste che producono N righe di storico, storico non modificabile, anche
+con molte richieste nello stesso momento.
+
+**Cosa abbiamo ottenuto**: tests/tempi.test.ts con 4 test: una richiesta entro
+5 secondi, 50 richieste insieme entro 5 secondi, 30 richieste insieme che
+producono 30 righe, UPDATE e DELETE rifiutati senza modificare lo storico.
+
+**Cosa abbiamo verificato e come**:
+- npm test 44/44; npx tsc --noEmit senza errori
+- controprova: con la soglia abbassata a 1 ms i 2 test dei tempi sono falliti;
+  rimessa a 5000 ms, 44/44
+
+**Cosa abbiamo tenuto o corretto, e perché**: abbiamo provato anche 50 richieste insieme e non solo una alla volta, perché più varchi possono leggere un badge nello stesso momento e nessuna richiesta deve andare persa né superare i 5 secondi.
+
+**Dati sensibili nei prompt**: nessuno.

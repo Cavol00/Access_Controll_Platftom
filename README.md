@@ -75,6 +75,8 @@ Altri comandi:
 ```bash
 npm test                 # test automatici (database in memoria, non tocca data/)
 npm run typecheck        # controllo dei tipi su src/ e tests/, senza generare file
+npm run simulate         # con il backend avviato: il simulatore del lettore badge
+                         # manda gli scenari di simulator/scenari.json e stampa gli esiti
 npm run crea-operatore -- <username> <ruolo>   # crea un operatore di prova (chiede la password)
 ```
 
@@ -105,6 +107,7 @@ deve rispondere `{"status":"ok"}`. Le API sono descritte in
 │   ├── middleware/       controlli prima delle rotte (chiave del lettore badge)
 │   └── repositories/     unico punto che contiene SQL
 ├── scripts/              comandi di servizio (crea-operatore)
+├── simulator/            simulatore del lettore badge (scenari in scenari.json)
 ├── tests/                test automatici
 └── docs/                 requisiti, casi d'uso, architettura, backlog,
                           modello dati, API, uso dell'AI
