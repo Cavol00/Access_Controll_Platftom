@@ -45,7 +45,7 @@ ricostruire a posteriori chi ha tentato di accedere dove e quando.
 
 | # | Requisito |
 |---|---|
-| RNF1 | La valutazione di una richiesta di accesso restituisce un esito entro **5 secondi** *(soglia confermata dal cliente il 23/09/2026 — vedi `domande-cliente.md` #1; il test che la verifica è previsto in T16)*, indipendentemente dal numero di regole configurate |
+| RNF1 | La valutazione di una richiesta di accesso restituisce un esito entro **5 secondi** *(soglia confermata dal cliente il 23/09/2026 — vedi `domande-cliente.md` #1; verificato da `tests/tempi.test.ts`, anche con 50 richieste insieme)*, indipendentemente dal numero di regole configurate |
 | RNF2 | Le regole di autorizzazione sono separate dall'interfaccia utente e modificabili senza intervenire sul codice sorgente |
 | RNF3 | Ogni operatore (amministratore sicurezza, amministratore tecnico) accede al sistema tramite autenticazione; le operazioni disponibili dipendono dal ruolo |
 | RNF4 | Nessun secret o credenziale è presente nel codice sorgente |
