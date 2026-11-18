@@ -53,7 +53,10 @@ CREATE TABLE IF NOT EXISTS access_events (
   requested_at TEXT NOT NULL,
   result TEXT NOT NULL CHECK (result IN ('ACCESS_GRANTED', 'ACCESS_DENIED')),
   reason TEXT NOT NULL,
-  recorded_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+  -- Stesso formato di requested_at (Date.toISOString in JS): ISO 8601 in UTC
+  -- con la Z, es. 2026-11-18T12:54:34.664Z. CURRENT_TIMESTAMP darebbe
+  -- '2026-11-18 12:54:34', senza fuso: un client lo leggerebbe come ora locale.
+  recorded_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
 );
 
 -- Lo storico non si modifica e non si cancella, nemmeno con una query scritta
@@ -76,7 +79,7 @@ CREATE TABLE IF NOT EXISTS authorization_changes (
   authorization_id INTEGER NOT NULL REFERENCES authorizations(id),
   action TEXT NOT NULL CHECK (action IN ('CREATED', 'REVOKED')),
   changed_by TEXT NOT NULL,
-  changed_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+  changed_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
 );
 
 CREATE TRIGGER IF NOT EXISTS authorization_changes_no_update

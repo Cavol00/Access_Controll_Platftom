@@ -405,3 +405,37 @@ sezione in docs/api.md.
 - Verificati anche 409 su revoca doppia, 404 su id inesistente, 400 su id non numerico, 401 senza token e 403 con `admin_tecnico`.
 
 **Cosa abbiamo tenuto o corretto, e perché**: `revoked_at` non cancella la riga, così l'elenco e il registro conservano la storia dell'autorizzazione; il motore di decisione considera già `revoked_at`, quindi non è stato toccato. La scrittura nel registro sta nella stessa transazione dell'UPDATE per evitare una revoca senza traccia di chi l'ha fatta. `changed_by` arriva sempre dalla sessione di `requireRole`, non dal client.
+
+## Caso 17 — Bug degli orari senza fuso (lezione 8, #68)
+
+**Data**: 18/11/2026 — **Chi**: Gianmarco Tonelli
+
+**Dove**: `schema.sql` (default di `recorded_at` e `changed_at`), `tests/orari.test.ts`,
+`tests/authorization-changes.test.ts`, `docs/bug-report-01.md`.
+
+**Cosa abbiamo chiesto**: di verificare se il formato di `recorded_at` (senza fuso)
+fosse un bug reale, di riprodurlo con chiamate all'API e di proporre un test di
+regressione e la correzione minima.
+
+**Cosa abbiamo ottenuto**: i passi di riproduzione, il test `tests/orari.test.ts`,
+la modifica dei due `DEFAULT` con `strftime('%Y-%m-%dT%H:%M:%fZ', 'now')` e la bozza
+del bug report.
+
+**Cosa abbiamo verificato e come**:
+- bug riprodotto sull'API: `recorded_at` `2026-11-18 12:54:34` accanto a
+  `requested_at` con la `Z`; letto con fuso Europe/Rome sembra un'ora prima
+- test prima della correzione: 0 passati, 3 falliti; dopo: 3 passati; tolta e
+  rimessa la correzione per controprova
+- facendo girare la suite è fallito anche un test vecchio di
+  `authorization-changes` che fissava il formato sbagliato: aggiornato
+- `npm run typecheck` pulito, `npm test` 79/79
+- un database già esistente mantiene il vecchio default (`CREATE TABLE IF NOT EXISTS`):
+  scritto nel bug report, va ricreato il file locale
+
+**Esito**: tenuto, con l'aggiornamento del test vecchio.
+
+**Cosa abbiamo tenuto o corretto, e perché**: la correzione sta dove il dato nasce
+(lo schema), così tutti gli orari salvati hanno lo stesso formato ISO di
+`toISOString()`; il test la blocca contro regressioni.
+
+**Dati sensibili nei prompt**: nessuno, solo dati di prova.
