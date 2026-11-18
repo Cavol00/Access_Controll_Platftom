@@ -343,3 +343,25 @@ producono 30 righe, UPDATE e DELETE rifiutati senza modificare lo storico.
 **Cosa abbiamo tenuto o corretto, e perché**: abbiamo provato anche 50 richieste insieme e non solo una alla volta, perché più varchi possono leggere un badge nello stesso momento e nessuna richiesta deve andare persa né superare i 5 secondi.
 
 **Dati sensibili nei prompt**: nessuno.
+
+## Caso 13 — Stato del sistema (T17)
+
+**Data**: 18/11/2026 — **Chi**: Gianmarco Tonelli
+
+**Cosa abbiamo chiesto**: lo stato dettagliato del sistema della T17: riservato
+agli amministratori, con lo stato del database e l'ora dell'ultimo evento
+ricevuto dal simulatore, mentre /health resta pubblico.
+
+**Cosa abbiamo ottenuto**: GET /api/status con requireRole per admin_tecnico e
+admin_sicurezza; repository con SELECT 1 e MAX(recorded_at); servizio che, se
+il database non risponde, lo dice invece di andare in errore; 6 test; la
+sezione in docs/api.md.
+
+**Cosa abbiamo verificato e come**:
+- npm test 50/50; npx tsc --noEmit senza errori
+- controprova: tolto requireRole dalla rotta, i test del 401 e del 403 sono
+  falliti; ripristinato, 50/50
+
+**Cosa abbiamo tenuto o corretto, e perché**: con il database spento la rotta risponde comunque 200 con "non raggiungibile" invece di un errore 500, perché è proprio il momento in cui l'amministratore tecnico ha bisogno di sapere cosa non funziona.
+
+**Dati sensibili nei prompt**: nessuno.
