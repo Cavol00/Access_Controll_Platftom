@@ -389,3 +389,19 @@ sezione in docs/api.md.
 **Cosa abbiamo tenuto o corretto, e perché**: la transazione garantisce atomicità: se l'insert nel registro fallisse dopo quello dell'autorizzazione, avremmo un permesso senza traccia di chi l'ha dato; con `BEGIN` / `ROLLBACK` succedono tutte e due o nessuna. `changed_by` proviene dalla sessione (`res.locals.operator.username` messo da `requireRole`), non dal client → non falsificabile. `ConflictError` 409 per coppia badge-area già autorizzata (stesso messaggio che Dario userà in T08, nessuna collisione git provata a unire i due branch).
 
 **Dati sensibili nei prompt**: nessuno; solo password, token e database temporanei inventati, senza chiavi reali.
+
+## Caso 15 — Revoca delle autorizzazioni (T13)
+
+**Data**: 18/11/2026 — **Chi**: Nicolò Florean
+
+**Cosa abbiamo chiesto**: revocare un'autorizzazione segnandone la data di revoca senza cancellare la riga, scrivere `REVOKED` nel registro delle modifiche con chi e quando, esporre l'API per consultare il registro, e verificare che la richiesta successiva sia negata senza alterare lo storico già registrato.
+
+**Cosa abbiamo ottenuto**: `POST /api/authorizations/:id/revoke` e `GET /api/authorizations/changes` (solo `admin_sicurezza`), repository `revokeWithChange` con la stessa transazione `BEGIN/COMMIT/ROLLBACK` della creazione, `NotFoundError` 404 e `ConflictError` 409 per revoca inesistente o doppia, 3 test nuovi, documentazione in `docs/api.md`.
+
+**Cosa abbiamo verificato e come**:
+- `npm run typecheck` → 0 errori; `npm test` → **61/61 pass** (baseline 58/58 + 3 T13); `npm run build` e `git diff --check` senza errori.
+- Il test della revoca manda le richieste a un server Express reale su una porta locale: prima confronta tutte le righe di `access_events`, poi revoca, verifica `ACCESS_DENIED` sul varco interessato, `ACCESS_GRANTED` su un altro, che le righe vecchie dello storico sono identiche e che il registro riporta `REVOKED`, `authorization_id` 1, `changed_by="admin.prova"` e un timestamp.
+- Controprova: scritto `CREATED` invece di `REVOKED` nell'insert del registro → il test del registro fallisce (60 pass, 1 fail); ripristinato `REVOKED` → 61/61.
+- Verificati anche 409 su revoca doppia, 404 su id inesistente, 400 su id non numerico, 401 senza token e 403 con `admin_tecnico`.
+
+**Cosa abbiamo tenuto o corretto, e perché**: `revoked_at` non cancella la riga, così l'elenco e il registro conservano la storia dell'autorizzazione; il motore di decisione considera già `revoked_at`, quindi non è stato toccato. La scrittura nel registro sta nella stessa transazione dell'UPDATE per evitare una revoca senza traccia di chi l'ha fatta. `changed_by` arriva sempre dalla sessione di `requireRole`, non dal client.
