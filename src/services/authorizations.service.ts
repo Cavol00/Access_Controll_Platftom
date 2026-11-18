@@ -1,13 +1,14 @@
-import { ConflictError, ValidationError } from "../errors.js";
+import { ConflictError, NotFoundError, ValidationError } from "../errors.js";
 import * as authorizations from "../repositories/authorizations.repository.js";
 
 /**
- * Servizio delle autorizzazioni (T12): un badge viene autorizzato su un'area,
- * con una data di inizio e una di fine facoltative. Chi la crea viene scritto
- * nel registro delle modifiche.
+ * Servizio delle autorizzazioni (T12, T13): un badge viene autorizzato su
+ * un'area e l'autorizzazione può essere revocata senza cancellarla. Creazione
+ * e revoca scrivono chi le ha fatte nel registro delle modifiche.
  */
 
 export const listAuthorizations = authorizations.listAuthorizations;
+export const listChanges = authorizations.listChanges;
 
 function optionalDate(value: unknown, field: string): string | null {
   if (value === undefined || value === null) return null;
@@ -34,4 +35,12 @@ export function createAuthorization(body: unknown, changedBy: string): authoriza
     throw new ConflictError("il badge ha già un'autorizzazione su quest'area");
   }
   return authorizations.createWithChange(badge_id, area_id, validFrom, validTo, changedBy);
+}
+
+export function revokeAuthorization(id: number, changedBy: string): authorizations.Authorization {
+  if (!Number.isInteger(id) || id <= 0) throw new ValidationError("id deve essere un numero intero positivo");
+  const authorization = authorizations.findById(id);
+  if (!authorization) throw new NotFoundError("autorizzazione non trovata");
+  if (authorization.revoked_at !== null) throw new ConflictError("l'autorizzazione è già revocata");
+  return authorizations.revokeWithChange(id, changedBy);
 }

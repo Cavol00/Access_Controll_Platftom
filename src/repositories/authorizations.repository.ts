@@ -1,9 +1,10 @@
 import { db } from "../db.js";
 
 /**
- * Repository delle autorizzazioni (T12). Ogni creazione scrive anche la sua
- * riga nel registro delle modifiche (authorization_changes), nella stessa
- * transazione: o succedono entrambe, o nessuna.
+ * Repository delle autorizzazioni (T12, T13). Ogni creazione e ogni revoca
+ * scrive anche la sua riga nel registro delle modifiche
+ * (authorization_changes), nella stessa transazione: o succedono entrambe,
+ * o nessuna.
  */
 
 export interface Authorization {
@@ -15,10 +16,27 @@ export interface Authorization {
   revoked_at: string | null;
 }
 
+export interface AuthorizationChange {
+  id: number;
+  authorization_id: number;
+  action: "CREATED" | "REVOKED";
+  changed_by: string;
+  changed_at: string;
+}
+
 const SELECT_AUTHORIZATION = "SELECT id, badge_id, area_id, valid_from, valid_to, revoked_at FROM authorizations";
 
 export function listAuthorizations(): Authorization[] {
   return db.prepare(`${SELECT_AUTHORIZATION} ORDER BY id`).all() as unknown as Authorization[];
+}
+
+export function findById(id: number): Authorization | undefined {
+  return db.prepare(`${SELECT_AUTHORIZATION} WHERE id = ?`).get(id) as unknown as Authorization | undefined;
+}
+
+export function listChanges(): AuthorizationChange[] {
+  return db.prepare("SELECT id, authorization_id, action, changed_by, changed_at FROM authorization_changes ORDER BY id")
+    .all() as unknown as AuthorizationChange[];
 }
 
 export function badgeExists(id: number): boolean {
@@ -50,6 +68,20 @@ export function createWithChange(
       .run(id, changedBy);
     db.exec("COMMIT");
     return db.prepare(`${SELECT_AUTHORIZATION} WHERE id = ?`).get(id) as unknown as Authorization;
+  } catch (error) {
+    db.exec("ROLLBACK");
+    throw error;
+  }
+}
+
+export function revokeWithChange(id: number, changedBy: string): Authorization {
+  db.exec("BEGIN");
+  try {
+    db.prepare("UPDATE authorizations SET revoked_at = ? WHERE id = ?").run(new Date().toISOString(), id);
+    db.prepare("INSERT INTO authorization_changes (authorization_id, action, changed_by) VALUES (?, 'REVOKED', ?)")
+      .run(id, changedBy);
+    db.exec("COMMIT");
+    return findById(id) as Authorization;
   } catch (error) {
     db.exec("ROLLBACK");
     throw error;
