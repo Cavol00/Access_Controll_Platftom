@@ -118,7 +118,7 @@ porta effimera.
 - controprova: abbiamo cambiato a mano un `assert.equal(res.status, 404)` in
   `405` e verificato che `npm test` fallisse, poi l'abbiamo rimesso
 
-**Cosa abbiamo tenuto o corretto, e perché**: *(da completare)*
+**Cosa abbiamo tenuto o corretto, e perché**: abbiamo tenuto la separazione tra app.ts e server.ts, così i test usano l'app senza occupare la porta 3000, e il database in memoria, così i test non toccano data/; i test delle segnalazioni li abbiamo poi sostituiti nel G3 con quelli di /api/access-events.
 
 **Dati sensibili nei prompt**: nessuno.
 
@@ -318,5 +318,26 @@ così l'esito non cambia con la data della demo; il simulatore usa il backend
 solo via HTTP, così i lettori reali potranno sostituirlo senza toccare il
 backend (RNF7); oltre 5 secondi senza risposta il varco resta chiuso
 (fail-closed, RNF1).
+
+**Dati sensibili nei prompt**: nessuno.
+
+## Caso 12 — Test dei tempi di risposta e dello storico sotto carico (T16)
+
+**Data**: 18/11/2026 — **Chi**: Gianmarco Tonelli
+
+**Cosa abbiamo chiesto**: i test della T16: risposta entro 5 secondi (RNF1),
+N richieste che producono N righe di storico, storico non modificabile, anche
+con molte richieste nello stesso momento.
+
+**Cosa abbiamo ottenuto**: tests/tempi.test.ts con 4 test: una richiesta entro
+5 secondi, 50 richieste insieme entro 5 secondi, 30 richieste insieme che
+producono 30 righe, UPDATE e DELETE rifiutati senza modificare lo storico.
+
+**Cosa abbiamo verificato e come**:
+- npm test 44/44; npx tsc --noEmit senza errori
+- controprova: con la soglia abbassata a 1 ms i 2 test dei tempi sono falliti;
+  rimessa a 5000 ms, 44/44
+
+**Cosa abbiamo tenuto o corretto, e perché**: abbiamo provato anche 50 richieste insieme e non solo una alla volta, perché più varchi possono leggere un badge nello stesso momento e nessuna richiesta deve andare persa né superare i 5 secondi.
 
 **Dati sensibili nei prompt**: nessuno.
