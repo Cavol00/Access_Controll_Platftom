@@ -31,7 +31,7 @@ describe("registro delle modifiche alle autorizzazioni", () => {
 
     assert.equal(row.action, "CREATED");
     assert.equal(row.changed_by, "admin.prova");
-    assert.match(row.changed_at, /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/);
+    assert.match(row.changed_at, /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
   });
 
   test("rifiuta un'azione diversa da CREATED o REVOKED", () => {
