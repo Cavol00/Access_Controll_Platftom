@@ -1,0 +1,14 @@
+body { font-family: system-ui, sans-serif; margin: 0; background: #f5f5f5; color: #222; }
+main { max-width: 960px; margin: 0 auto; padding: 16px; }
+form { display: flex; flex-direction: column; gap: 8px; max-width: 320px; }
+label { display: flex; flex-direction: column; gap: 4px; }
+input, button { font: inherit; padding: 6px 10px; }
+.barra { display: flex; gap: 8px; align-items: center; }
+.barra span { flex: 1; }
+.messaggio { padding: 8px 12px; border-radius: 4px; background: #fdecea; color: #8a1c13; }
+table { width: 100%; border-collapse: collapse; background: #fff; }
+th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #ddd; }
+/* Negati e concessi si distinguono a colpo d'occhio (voce 8 del backlog). */
+tr.negato { background: #fdecea; }
+tr.negato .esito { color: #b3261e; font-weight: bold; }
+tr.concesso .esito { color: #1b6e2e; }

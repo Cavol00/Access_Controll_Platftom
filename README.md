@@ -52,7 +52,7 @@ L'azienda chiede una piattaforma centralizzata che:
 | **Backend** | Node.js 22.9 o superiore (sviluppato su Node 24), TypeScript, Express 5 |
 | **Database** | SQLite tramite il modulo `node:sqlite` integrato in Node: nessun server da installare |
 | **Test** | `node:test` eseguito con `tsx` |
-| **Frontend** | non ancora presente |
+| **Frontend** | console web minima in `public/` (HTML, CSS e JavaScript senza framework), servita dal backend |
 
 ## Come si esegue
 
@@ -84,6 +84,21 @@ Verifica rapida: con il backend avviato, `curl http://localhost:3000/health`
 deve rispondere `{"status":"ok"}`. Le API sono descritte in
 [`docs/api.md`](./docs/api.md).
 
+### Console web
+
+Con il backend avviato, aprite `http://localhost:3000` nel browser: compare la
+pagina di login della console. Per vederla funzionare:
+
+```bash
+npm run crea-operatore -- admin.sicurezza admin_sicurezza   # chiede la password
+npm run simulate                                            # riempie lo storico
+```
+
+Entrate con l'operatore appena creato: vedete lo storico degli accessi, con i
+tentativi negati evidenziati in rosso. Un operatore `admin_tecnico` entra ma
+riceve il messaggio di ruolo non ammesso. Il token del login resta solo nella
+pagina: ricaricandola si rifà il login.
+
 ## Struttura del repository
 
 ```
@@ -95,6 +110,7 @@ deve rispondere `{"status":"ok"}`. Le API sono descritte in
 ├── tsconfig.build.json   compilazione di src/ in dist/
 ├── schema.sql            tabelle del database
 ├── dati_db_test.sql      dati di prova, solo inventati
+├── public/             console web: index.html, style.css, app.js
 ├── src/
 │   ├── server.ts         avvia l'app sulla porta letta da .env
 │   ├── app.ts            monta le rotte e il gestore degli errori

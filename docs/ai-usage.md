@@ -405,3 +405,42 @@ sezione in docs/api.md.
 - Verificati anche 409 su revoca doppia, 404 su id inesistente, 400 su id non numerico, 401 senza token e 403 con `admin_tecnico`.
 
 **Cosa abbiamo tenuto o corretto, e perché**: `revoked_at` non cancella la riga, così l'elenco e il registro conservano la storia dell'autorizzazione; il motore di decisione considera già `revoked_at`, quindi non è stato toccato. La scrittura nel registro sta nella stessa transazione dell'UPDATE per evitare una revoca senza traccia di chi l'ha fatta. `changed_by` arriva sempre dalla sessione di `requireRole`, non dal client.
+
+## Caso 16 — Console web minima (#67)
+
+**Data**: 18/11/2026 — **Chi**: Gianmarco Tonelli
+
+**Dove**: `public/` (index.html, style.css, app.js), `src/app.ts`,
+`tests/console.test.ts`, README e `docs/api.md`.
+
+**Cosa abbiamo chiesto**: una console web minima senza framework né
+dipendenze nuove, servita dal backend: login con `POST /api/auth/login` e
+storico con `GET /api/access-events`, con negati e concessi distinguibili e
+messaggi chiari per credenziali sbagliate, sessione scaduta e ruolo non ammesso.
+
+**Cosa abbiamo ottenuto**: tre file statici in `public/` serviti con
+`express.static`, il token tenuto solo in una variabile della pagina, 4 test
+di integrazione, la sezione nel README e in `docs/api.md`.
+
+**Cosa abbiamo verificato e come**:
+- `npm run typecheck` senza errori; `npm test` 80/80 (76 + 4 nuovi)
+- controprova: commentato `express.static`, 2 test falliti; ripristinato, 80/80
+- prova nel browser con operatori creati da `npm run crea-operatore` e lo
+  storico prodotto da `npm run simulate`: password sbagliata → “credenziali
+  non valide”; `admin_tecnico` → messaggio di ruolo non ammesso;
+  `admin_sicurezza` → tabella con i negati in rosso; backend riavviato →
+  “sessione scaduta”, ritorno al login
+
+**Esito**: tenuto, con una correzione.
+
+**Cosa abbiamo tenuto o corretto, e perché**: la prima versione calcolava la
+cartella `public` con `import.meta.url`, ma il progetto compila in CommonJS e
+`npm run typecheck` l'ha rifiutata (errore TS1470). Corretto con
+`express.static("public")`, relativo alla radice del repo come già fa `db.ts`
+con `schema.sql`. Le celle della tabella usano `textContent` e non
+`innerHTML`, così un codice badge con dentro dell'HTML viene mostrato come
+testo e non eseguito. Il token non è salvato in `localStorage`: ricaricando la
+pagina si rifà il login, che è più sicuro su un PC condiviso in portineria.
+
+**Dati sensibili nei prompt**: nessuno; operatori e password inventati, solo
+dati di prova.

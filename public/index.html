@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Console accessi</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+    <h1>Console accessi</h1>
+
+    <!-- Messaggi per l'operatore: errori di login, sessione scaduta, ruolo non ammesso. -->
+    <p id="messaggio" class="messaggio" role="alert" hidden></p>
+
+    <section id="vista-login">
+      <h2>Accesso operatore</h2>
+      <form id="form-login">
+        <label>Username <input id="username" name="username" autocomplete="username" required></label>
+        <label>Password <input id="password" name="password" type="password" autocomplete="current-password" required></label>
+        <button type="submit">Entra</button>
+      </form>
+    </section>
+
+    <section id="vista-storico" hidden>
+      <div class="barra">
+        <span id="operatore"></span>
+        <button id="aggiorna" type="button">Aggiorna</button>
+        <button id="logout" type="button">Esci</button>
+      </div>
+      <h2>Storico accessi</h2>
+      <table id="tabella-storico" hidden>
+        <thead>
+          <tr><th>Data e ora</th><th>Badge</th><th>Varco</th><th>Esito</th><th>Motivazione</th></tr>
+        </thead>
+        <tbody id="righe-storico"></tbody>
+      </table>
+      <p id="storico-vuoto" hidden>Nessun tentativo di accesso registrato.</p>
+    </section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
